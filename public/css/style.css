@@ -1,0 +1,51 @@
+ .loginbtn{
+        width: 100%;
+    background: black;
+    color: #ffc107;
+    }
+    .loginbtn:hover{
+    width: 100%;
+    background: black;
+    color: #ffc107;
+    }
+    .heading_h1_login{
+    text-align: center;
+    font-size: 16px;
+    color: black;
+    }
+body{
+        font-family: 'Poppins';
+        font-size: 14px;
+        background: #e8f0fe0d;
+    }
+.navbar {
+    padding: 0px 0;
+}
+.navbar-brand {
+    
+}
+.navbar a {
+    text-decoration: none;
+}
+
+#navbarSupportedContent {
+    justify-content: center;
+}
+.leftnav{
+        justify-content: left;
+    display: flex;
+    flex-wrap: wrap;
+    width: 40%;
+}
+.rightnav{
+        justify-content: right;
+    display: flex;
+    flex-wrap: wrap;
+    width: 40%;
+}
+a{
+    color:black !important;
+}
+
+
+

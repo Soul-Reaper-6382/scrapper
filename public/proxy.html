@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Iframe</title>
+    <script>
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'navigate') {
+                const iframe = document.getElementById('content');
+                iframe.src = event.data.url;
+                iframe.onload = () => {
+                    parent.postMessage({ type: 'loaded', url: event.data.url }, '*');
+                };
+            }
+        });
+
+        function sendLoadedMessage() {
+            const iframe = document.getElementById('content');
+            iframe.onload = () => {
+                parent.postMessage({ type: 'loaded', url: iframe.src }, '*');
+            };
+        }
+    </script>
+</head>
+<body onload="sendLoadedMessage()">
+    <iframe id="content" src="about:blank" width="100%" height="100%"></iframe>
+</body>
+</html>

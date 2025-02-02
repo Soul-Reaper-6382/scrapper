@@ -1,0 +1,62 @@
+{
+    "private": true,
+    "name": "Smugglers-OMS-Scrapper",
+    "productName": "Smugglers OMS Scrapper",
+    "version": "1.0.0",
+    "author": "Smugglers",
+    "main": "main.js",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "electron": "electron .",
+        "electron-dev": "concurrently \"vite\" \"npm run electron\"",
+        "electron-pack": "electron-packager . --out=dist --overwrite --icon=icon.ico",
+        "electron-build": "electron-builder"
+    },
+    "devDependencies": {
+        "@popperjs/core": "^2.11.6",
+        "axios": "^1.1.2",
+        "bootstrap": "^5.2.3",
+        "concurrently": "^8.2.2",
+        "electron": "^30.0.6",
+        "electron-builder": "^24.13.3",
+        "electron-packager": "^17.1.2",
+        "laravel-vite-plugin": "^0.7.2",
+        "lodash": "^4.17.19",
+        "postcss": "^8.1.14",
+        "sass": "^1.56.1",
+        "vite": "^4.0.0"
+    },
+    "license": "ISC",
+    "dependencies": {
+        "intl-tel-input": "^18.2.1"
+    },
+    "build": {
+    "appId": "com.smugglers.oms-scrapper",
+    "productName": "Smugglers OMS Scrapper",
+    "directories": {
+    "output": "dist"
+    },
+    "win": {
+      "icon": "icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "differentialPackage": true,
+      "deleteAppDataOnUninstall": true,
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico",
+      "installerHeaderIcon": "icon.ico"
+    }
+}
+}
