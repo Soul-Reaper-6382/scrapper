@@ -18,8 +18,8 @@ function createWindow() {
     //     ? 'http://localhost:3000'  // Assuming Vite dev server runs on port 3000
     //     : `file://${path.join(__dirname, 'dist/index.html')}`;
 
-    // mainWindow.loadURL('http://52.14.188.169/');
-    mainWindow.loadURL('http://localhost/webscrapper/');
+    mainWindow.loadURL('http://52.14.188.169/');
+    // mainWindow.loadURL('http://localhost/webscrapper/');
 
     mainWindow.once('ready-to-show', () => {
         mainWindow.show(); // Show the main window
