@@ -24,5 +24,5 @@ Route::get('/', function () {
 
 Route::get('/home', [HomeController::class,'index'])->name('home');
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.form');
-Route::post('/login', [LoginController::class, 'login'])->name('login');
+Route::post('/loginApi', [LoginController::class, 'loginApi'])->name('loginApi');
 Route::post('/logout', [LoginController::class,'logout'])->name('logout');

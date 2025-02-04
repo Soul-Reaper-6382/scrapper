@@ -16,7 +16,7 @@ class LoginController extends Controller
         return view('login'); // Ensure you have a login view
     }
 
-    public function login(Request $request)
+    public function loginApi(Request $request)
     {
         // $request->validate([
         //     'email' => ['required', 'string'],
