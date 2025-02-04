@@ -19,10 +19,10 @@ use App\Http\Controllers\ScraperController;
 */
 
 Route::get('/', function () {
-    return redirect('/login');
+    return redirect('/Customlogin');
 });
 
 Route::get('/home', [HomeController::class,'index'])->name('home');
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.form');
+Route::get('/Customlogin', [LoginController::class, 'showLoginForm'])->name('login.form');
 Route::post('/loginApi', [LoginController::class, 'loginApi'])->name('loginApi');
 Route::post('/logout', [LoginController::class,'logout'])->name('logout');
