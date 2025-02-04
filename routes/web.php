@@ -19,7 +19,7 @@ use App\Http\Controllers\ScraperController;
 */
 
 Route::get('/', function () {
-    return redirect('/view');
+    return redirect('/login');
 });
 
 Route::get('/home', [HomeController::class,'index'])->name('home');
