@@ -5,7 +5,7 @@
   <div class="main-container d-flex">
         <div class="sidebar" id="side_nav">
             <div class="header-box px-2 pt-2 d-flex justify-content-between">
-                <h1 class="fs-4"><img src="{{ url('/images/logo.png') }}" alt="logo" style="width: 70px;"></h1>
+                <h1 class="fs-4"><img src="{{ url('/images/Logo.png') }}" alt="logo" style="width: 70px;"></h1>
                 <button class="btn d-md-none d-block close-btn px-1 py-0 text-white"><i
                         class="fal fa-stream"></i></button>
             </div>

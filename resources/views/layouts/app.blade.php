@@ -30,7 +30,7 @@
             <nav class="navbar navbar-expand-lg navbar-light bg-white">
                 <div class="navbar-collapse" id="navbarSupportedContent">
                     <a class="" href="{{ url('/') }}">
-                    <img src="{{ url('/images/logo.png') }}" alt="logo" style="width: 100px;">
+                    <img src="{{ url('/images/Logo.png') }}" alt="logo" style="width: 100px;">
                 </a>
                 </div>
             </nav>
