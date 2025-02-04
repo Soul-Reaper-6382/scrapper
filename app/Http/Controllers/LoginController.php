@@ -55,7 +55,7 @@ class LoginController extends Controller
 
     public function logout()
     {
-        Session::forget('auth_token');
+        // Session::forget('auth_token');
         return redirect()->route('login.form');
     }
 }
