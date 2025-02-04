@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class DataScrapper extends Model
 {
     use HasFactory;
-    protected $table = 'Datascrapper';
+    protected $table = 'datascrapper';
     protected $fillable = ['userid', 'data', 'url'];
 }

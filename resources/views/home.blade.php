@@ -116,7 +116,7 @@ empty_json_id.addEventListener('click',(event) => {
         });
         // Make the AJAX call
         $.ajax({
-            url: 'https://scrapper.webxcube.com/api/save-data',
+            url: 'http://52.14.188.169/api/save-data',
             type: 'POST',
             data: formData_json,
             processData: false,
@@ -362,7 +362,7 @@ function fetchDataToDatabse() {
         });
         // Make the AJAX call
         $.ajax({
-            url: 'https://scrapper.webxcube.com/api/retrieve-data',
+            url: 'http://52.14.188.169/api/retrieve-data',
             type: 'POST',
             data: formData2,
             processData: false,
@@ -487,7 +487,7 @@ webview.addEventListener('dom-ready', () => {
         });
         // Make the AJAX call
         $.ajax({
-            url: 'https://scrapper.webxcube.com/api/save-data',
+            url: 'http://52.14.188.169/api/save-data',
             type: 'POST',
             data: formData,
             processData: false,
@@ -518,7 +518,7 @@ webview.addEventListener('dom-ready', () => {
                 });
                 // Make the AJAX call
                 $.ajax({
-                    url: 'https://scrapper.webxcube.com/api/retrieve-data',
+                    url: 'http://52.14.188.169/api/retrieve-data',
                     type: 'POST',
                     data: formData3,
                     processData: false,
