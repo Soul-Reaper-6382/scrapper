@@ -16,8 +16,14 @@ class LoginController extends Controller
         if (Session::has('auth_token')) {
         return redirect()->route('home');
         }
-        
+
         return view('login'); // Ensure you have a login view
+    }
+
+    public function checking()
+    {
+        
+        return checking('checking'); // Ensure you have a login view
     }
 
     public function login(Request $request)
@@ -45,7 +51,7 @@ class LoginController extends Controller
 
             $data = json_decode($response->getBody(), true);
             // Store the token in the session
-            Session::put('auth_token', $data['results']['refresh']);
+            Session::put('auth_token', $data['results']['id']);
             
             return redirect()->route('home'); // Change to your intended route
         } catch (\GuzzleHttp\Exception\RequestException $e) {
