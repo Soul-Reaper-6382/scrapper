@@ -23,7 +23,7 @@ class LoginController extends Controller
     public function checking()
     {
         
-        return checking('checking'); // Ensure you have a login view
+        return view('checking'); // Ensure you have a login view
     }
 
     public function login(Request $request)
