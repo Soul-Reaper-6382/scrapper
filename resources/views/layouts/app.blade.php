@@ -28,8 +28,8 @@
         <div id="header">
         <div class="container-fluid p-0">
             <nav class="navbar navbar-expand-lg navbar-light bg-white">
-                <div class="navbar-collapse" id="navbarSupportedContent">
-                    <a class="" href="{{ url('/') }}">
+                <div class="navbar-collapse p-2" id="">  <!-- navbarSupportedContent -->
+                    <a href="#" onclick="location.reload(); return false;">
                     <img src="{{ url('/images/Logo.png') }}" alt="logo" style="width: 100px;">
                 </a>
                 </div>

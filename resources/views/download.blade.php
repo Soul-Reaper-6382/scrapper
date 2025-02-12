@@ -2,21 +2,29 @@
 
 @section('content')
 <style>
+     body {
+        background: url('{{ asset("images/abstract.jpg") }}');
+        height: 100vh; /* Ensures full viewport height */
+        margin: 0;
+    }
     .download-container {
         text-align: center;
         margin-top: 100px;
+        background: rgb(243 238 238 / 79%);
+        padding: 50px;
+        border-radius: 10px;
     }
+    
     .download-btn {
-        background-color: #007bff;
-        color: #fff;
-        font-size: 18px;
-        padding: 10px 20px;
-        border-radius: 5px;
-        text-decoration: none;
-        transition: 0.3s;
-    }
-    .download-btn:hover {
-        background-color: #0056b3;
+    background-color: black;
+    color: #ffc107 !important;
+    font-size: 17px;
+    padding: 7px 50px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: 0.3s;
+    display: inline-block;
+    margin-top: 15px;
     }
 </style>
 
