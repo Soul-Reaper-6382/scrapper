@@ -20,7 +20,7 @@ class HomeController extends Controller
         return view('home');
     }
 
-     public function index()
+     public function download()
     {
         return view('download');
     }
