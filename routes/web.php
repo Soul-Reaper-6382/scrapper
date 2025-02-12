@@ -19,13 +19,11 @@ use App\Http\Controllers\ScraperController;
 */
 
 Route::get('/', function () {
-    return redirect('/login');
+    return redirect('/download');
 });
 
+Route::get('/download', [HomeController::class,'download'])->name('download');
 Route::get('/home', [HomeController::class,'index'])->name('home');
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.form');
-Route::get('/checking', [LoginController::class, 'checking'])->name('checking');
-Route::post('/checkinggg', [LoginController::class, 'checkinggg'])->name('checkinggg');
-Route::post('/checkingggasasss', [LoginController::class, 'checkinggg'])->name('checkinggg');
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/logout', [LoginController::class,'logout'])->name('logout');

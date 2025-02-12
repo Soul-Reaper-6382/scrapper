@@ -20,12 +20,6 @@ class LoginController extends Controller
         return view('login'); // Ensure you have a login view
     }
 
-    public function checking()
-    {
-        
-        return view('checking'); // Ensure you have a login view
-    }
-
     public function login(Request $request)
     {
         $request->validate([
