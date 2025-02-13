@@ -33,7 +33,7 @@
         <div class="col-md-6 download-container">
             <h2>Download Scraper</h2>
             <p>Click the button below to download the latest version of Scraper.</p>
-            <a href="{{ asset('exe/scrapper.exe') }}" class="download-btn" download>
+            <a href="{{ url('https://drive.google.com/file/d/1Xh521NzZXtoWIne7oqoxzNSjjigpDUjh/view?usp=sharing') }}" class="download-btn" download>
                 Download EXE
             </a>
         </div>
