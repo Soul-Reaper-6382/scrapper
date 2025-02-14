@@ -81,7 +81,7 @@
     </div>
 
 <script type="module">
-window.userid = '123abca';
+window.userid = @json(session('auth_token')); // This will embed the session value in JavaScript
 
 
 const back_btn = document.getElementById("back-btn")
@@ -277,11 +277,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 checkbox.checked = true;
                 select_mode.style.display = 'block';
                 document.getElementById('browser').classList.add('shadow');
+                showscrapper_json.style.display = 'none';
+                hidescrapper_json.style.display = 'block';
+                document.querySelector('.scrapper_json').style.height = '30vh';
+                document.getElementById('browser').style.height = '65vh';
+                document.getElementById('nav-tabContent').style.height = '165px';
+                document.getElementById('nav-tabContent').classList.add('p-3');
             } else {
                 window.browser_toggle = 'not';
                 checkbox.checked = false;
                 select_mode.style.display = 'none';
                 document.getElementById('browser').classList.remove('shadow');
+                hidescrapper_json.style.display = 'none';
+                showscrapper_json.style.display = 'block';
+                document.querySelector('.scrapper_json').style.height = '5vh';
+                document.getElementById('browser').style.height = '89vh';
+                document.getElementById('nav-tabContent').style.height = '0';
+                document.getElementById('nav-tabContent').classList.remove('p-3');
             }
             
             // Get the stored URL value from localStorage
