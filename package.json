@@ -1,7 +1,7 @@
 {
     "private": true,
-    "name": "Smugglers-OMS-Scrapper",
-    "productName": "Smugglers OMS Scrapper",
+    "name": "UPI-tool",
+    "productName": "UPI tool",
     "version": "1.0.0",
     "author": "Smugglers",
     "main": "main.js",
@@ -32,8 +32,8 @@
         "intl-tel-input": "^18.2.1"
     },
     "build": {
-    "appId": "com.smugglers.oms-scrapper",
-    "productName": "Smugglers OMS Scrapper",
+    "appId": "com.smugglers.UPI-tool",
+    "productName": "UPI tool",
     "directories": {
     "output": "dist"
     },

@@ -6,7 +6,7 @@
 </style>
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <h1 class="heading_h1_login">Welcome to Smugglers OMS Scrapper</h1>
+        <h1 class="heading_h1_login">Welcome to Smugglers UPI Tool</h1>
         <div class="col-md-5">
             <div class="card">
                 <div class="card-header">{{ __('Login') }}</div>
