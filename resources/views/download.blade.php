@@ -31,9 +31,9 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6 download-container">
-            <h2>Download Scraper</h2>
-            <p>Click the button below to download the latest version of Scraper.</p>
-            <a href="https://drive.google.com/uc?export=download&id=1Xh521NzZXtoWIne7oqoxzNSjjigpDUjh" class="download-btn">
+            <h2>Download UPI Tool</h2>
+            <p>Click the button below to download the latest version of UPI Tool.</p>
+            <a href="https://scrapper.webxcube.com/download/UPI%20tool%20Setup%201.0.0.exe" class="download-btn">
                 Download EXE
             </a>
         </div>
