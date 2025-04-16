@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\DataScrapper; // Adjust this to your actual model
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Session;
 
 class SaveDataController extends Controller
 {
@@ -148,7 +147,7 @@ class SaveDataController extends Controller
         foreach ($decodedData as $item) {
             try {
                 $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . Session::get('auth_token'),
+                    'Authorization' => env('API_Smugglers_Authorization'),
                     'Accept' => 'application/json',
                 ])->post(env('API_Smugglers_URL') . 'api/pos/smugglers/inventory/store-inventory/create/', $item);
 
