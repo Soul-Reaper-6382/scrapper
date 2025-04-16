@@ -800,12 +800,18 @@ function openTablePopup(target) {
         }
 
         // Get the closest table and highlight it
-        const tableTarget = target.closest('table');
+        let tableTarget = target.closest('table');
         tableTarget.classList.add('all_highlight');
         tableTarget.querySelectorAll('th, td').forEach(element => {
             element.classList.add('all_highlight');
         });
 
+        tableTarget.classList.remove('all_highlight');
+            target.classList.remove('highlight');
+            tableTarget.querySelectorAll('th, td').forEach(element => {
+                element.classList.remove('all_highlight');
+            });
+            
         // Extract and structure the table data
         let extractedData = transformData(tableTarget);
         const tableId = tableTarget.id || "";
@@ -817,14 +823,10 @@ function openTablePopup(target) {
         saveDataToDatabse(window.userid, window.myData_scraper, location.href , type, tableId, tableClass, headers);
 
         // Remove highlight after 5 seconds
-        setTimeout(() => {
-            tableTarget.classList.remove('all_highlight');
-            target.classList.remove('highlight');
-            tableTarget.querySelectorAll('th, td').forEach(element => {
-                element.classList.remove('all_highlight');
-            });
+        // setTimeout(() => {
+            
             window.click_tag = 'no';
-        }, 5000);
+        // }, 5000);
     }
 
     
