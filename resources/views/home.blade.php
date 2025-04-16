@@ -527,7 +527,7 @@ webview.addEventListener('dom-ready', () => {
         function hidePreloader_scrapper_oms() {
             preloader_scraper_oms.classList.add('hidden_scraper_oms');
         }
-        function saveDataToDatabse(key, value, url, type, tableId, tableClass, headers) {
+        function saveDataToDatabse(key, value, url, type, tableId, tableClass, headers_get) {
         showPreloader_scrapper_oms();
         let formData = new FormData();
         
@@ -538,7 +538,7 @@ webview.addEventListener('dom-ready', () => {
         formData.append('type', type);
         formData.append('tableId', tableId);
         formData.append('tableClass', tableClass);
-        formData.append('headers', JSON.stringify(headers));
+        formData.append('headers_get', JSON.stringify(headers_get));
         $.ajaxSetup({
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -811,16 +811,16 @@ function openTablePopup(target) {
             tableTarget.querySelectorAll('th, td').forEach(element => {
                 element.classList.remove('all_highlight');
             });
-            
+
         // Extract and structure the table data
         let extractedData = transformData(tableTarget);
         const tableId = tableTarget.id || "";
         const tableClass = tableTarget.className || "";
-        const headers = Array.from(tableTarget.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
+        let headers_get = Array.from(tableTarget.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
 
         // Save structured data to database
         window.myData_scraper = extractedData;
-        saveDataToDatabse(window.userid, window.myData_scraper, location.href , type, tableId, tableClass, headers);
+        saveDataToDatabse(window.userid, window.myData_scraper, location.href , type, tableId, tableClass, headers_get);
 
         // Remove highlight after 5 seconds
         // setTimeout(() => {

@@ -17,7 +17,7 @@ class SaveDataController extends Controller
     public function store(Request $request)
     {
         // Normalize headers to consistent JSON string
-        $normalizedHeaders = collect(json_decode($request->headers, true))->map(function($header) {
+        $normalizedHeaders = collect(json_decode($request->headers_get, true))->map(function($header) {
             return strtolower(trim($header));
         })->sort()->values()->toJson();
 
