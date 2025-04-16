@@ -739,6 +739,7 @@ webview.addEventListener('dom-ready', () => {
                                         rowData["timestamp"] = isNaN(date.getTime()) ? "" : date.toISOString();
                                     }
 
+                                    rowData["store"] = window.userid || "";
                                     return rowData;
                                 });
 
@@ -982,6 +983,7 @@ function openTablePopup(target) {
                     rowData["timestamp"] = formatDate(rowData["timestamp"]);
                 }
 
+                rowData["store"] = window.userid || "";
                 return rowData;
             });
 
