@@ -147,7 +147,7 @@ class SaveDataController extends Controller
         foreach ($decodedData as $item) {
             try {
                 $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . env('API_Smugglers_Authorization'),
+                    'Authorization' => 'Bearer ' . trim(env('API_Smugglers_Authorization')),
                     'Accept' => 'application/json',
                 ])->post(env('API_Smugglers_URL') . 'api/pos/smugglers/inventory/store-inventory/create/', $item);
 
