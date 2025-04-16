@@ -44,8 +44,10 @@ class LoginController extends Controller
             ]);
 
             $data = json_decode($response->getBody(), true);
+            // dd($data);
             // Store the token in the session
-            Session::put('auth_token', $data['results']['id']);
+            Session::put('auth_id', $data['results']['id']);
+            Session::put('auth_token', $data['results']['access']);
             
             return redirect()->route('home'); // Change to your intended route
         } catch (\GuzzleHttp\Exception\RequestException $e) {
@@ -55,6 +57,7 @@ class LoginController extends Controller
 
     public function logout()
     {
+        Session::forget('auth_id');
         Session::forget('auth_token');
         return redirect()->route('login.form');
     }

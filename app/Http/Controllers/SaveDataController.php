@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\DataScrapper; // Adjust this to your actual model
+use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Http;
 
 class SaveDataController extends Controller
 {
@@ -125,4 +127,52 @@ class SaveDataController extends Controller
             return response()->json(['message' => 'No data found'], 200);
         }
     }
+
+    
+    public function send_data(Request $request)
+    {
+        $data = DataScrapper::where('userid', $request->userid)
+                            ->where('url', $request->url)
+                            ->where('type', 'inventory')
+                            ->first();
+
+        if (!$data) {
+            return response()->json(['message' => 'No data found'], 200);
+        }
+
+        $decodedData = json_decode($data->data, true); // array of inventory items
+        $success = [];
+        $failed = [];
+
+        foreach ($decodedData as $item) {
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . env('API_Smugglers_Authorization'),
+                    'Accept' => 'application/json',
+                ])->post(env('API_Smugglers_URL') . 'api/pos/smugglers/inventory/store-inventory/create/', $item);
+
+                if ($response->successful()) {
+                    $success[] = $item;
+                } else {
+                    $failed[] = [
+                        'item' => $item,
+                        'error' => $response->body(),
+                    ];
+                }
+            } catch (\Exception $e) {
+                $failed[] = [
+                    'item' => $item,
+                    'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        return response()->json([
+            'message' => 'Inventory data processed',
+            'success_count' => count($success),
+            'failed_count' => count($failed),
+            'failed_items' => $failed
+        ], 200);
+    }
+
 }

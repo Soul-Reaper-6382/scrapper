@@ -86,7 +86,7 @@
     </div>
 
 <script type="module">
-window.userid = @json(session('auth_token')); // This will embed the session value in JavaScript
+window.userid = @json(session('auth_id')); // This will embed the session value in JavaScript
 
 
 const back_btn = document.getElementById("back-btn")
@@ -273,6 +273,7 @@ window.addEventListener('beforeunload', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
         setTimeout(function(){
             fetchDataToDatabse();
+            fetchDataToDatabse_inventory();
         },2000)
           const checkbox = document.getElementById('personalize');
             checkbox.addEventListener('change', handleCheckboxChange);
@@ -451,10 +452,43 @@ function fetchDataToDatabse_inventory() {
         });
         }
 
+        function saveDataToAPI() {
+        let formData2 = new FormData();
+        
+        // Append the key, value, and url to the FormData object
+        formData2.append('userid', window.userid);
+        formData2.append('url', document.getElementById('url').value);
+        $.ajaxSetup({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
+        // Make the AJAX call
+        $.ajax({
+            url: 'https://pos.smugglers-system.com/api/send-data',
+            type: 'POST',
+            data: formData2,
+            processData: false,
+            contentType: false,
+            cache: false,
+            dataType: "json",
+            success: function(data) {
+                console.log(data)
+                        },
+            error: function(xhr, status, error) {
+                console.log('Error: ' + error);
+            }
+        });
+        }
+
 setInterval(function(){
 fetchDataToDatabse()
 fetchDataToDatabse_inventory()
 },5000)
+
+setInterval(function(){
+saveDataToAPI()
+},15000)
 
 function addWebviewEventListener() {
 webview.addEventListener('dom-ready', () => {
@@ -711,8 +745,8 @@ webview.addEventListener('dom-ready', () => {
                                 return rows;
                             };
 
-                            let extractedData = extract(table);
-                            saveDataToDatabse(window.userid, extractedData, location.href, type, tableId, tableClass, tableHeaders);
+                            let extractedData2 = extract(table);
+                            saveDataToDatabse(window.userid, extractedData2, location.href, type, tableId, tableClass, tableHeaders);
                         }
                     });
                 },
@@ -722,7 +756,9 @@ webview.addEventListener('dom-ready', () => {
             });
         }
 
+        setTimeout(function(){
         autoSaveTableIfMatched();
+        },5000)
         // function fetchDataToDatabse2() {
         //         let formData3 = new FormData();
                 

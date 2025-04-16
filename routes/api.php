@@ -22,3 +22,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/save-data', [SaveDataController::class, 'store']);
 Route::post('/retrieve-data', [SaveDataController::class, 'retrieve']);
 Route::post('/retrieve-alldata', [SaveDataController::class, 'retrieve_alldata']);
+Route::post('/send-data', [SaveDataController::class, 'send_data']);
