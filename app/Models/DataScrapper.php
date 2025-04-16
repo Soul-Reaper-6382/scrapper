@@ -9,5 +9,5 @@ class DataScrapper extends Model
 {
     use HasFactory;
     protected $table = 'datascrapper';
-    protected $fillable = ['userid', 'data', 'url'];
+    protected $fillable = ['userid', 'data', 'url', 'table_id', 'table_class', 'headers', 'type'];
 }

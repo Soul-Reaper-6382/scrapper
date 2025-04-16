@@ -458,49 +458,6 @@ webview.addEventListener('dom-ready', () => {
                 animation: spin_scraper_oms 1s linear infinite;
             }
 
-            .table-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #ffffffb5;
-            padding: 20px;
-            /* border-radius: 10px; */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            z-index: 999999999;
-            width: 100%;
-            height: 100vh;
-            }
-
-            .table-popup .popup-content{
-            background: white;
-            padding: 10px;
-            width: 50%;
-            position: absolute;
-            left: 25%;
-            top: 5%;
-            border: 2px solid #ffc107;
-            }
-
-
-
-            /* Style for buttons in the popup */
-            .popup-content button {
-                display: block;
-                /* width: 100%; */
-                margin: 10px 0;
-                padding: 10px;
-                border: none;
-                cursor: pointer;
-                font-size: 16px;
-                display: inline;
-                background: black;
-                border-radius: 5px;
-                color: #ffc107 !important;
-                justify-content: center;
-                text-transform: uppercase;
-            }
-
             @keyframes spin_scraper_oms {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
@@ -527,7 +484,7 @@ webview.addEventListener('dom-ready', () => {
         function hidePreloader_scrapper_oms() {
             preloader_scraper_oms.classList.add('hidden_scraper_oms');
         }
-        function saveDataToDatabse(key, value, url, type, tableId, tableClass, headers) {
+        function saveDataToDatabse(key, value, url) {
         showPreloader_scrapper_oms();
         let formData = new FormData();
         
@@ -535,10 +492,6 @@ webview.addEventListener('dom-ready', () => {
         formData.append('key', key);
         formData.append('value', JSON.stringify(value));
         formData.append('url', url);
-        formData.append('type', type);
-        formData.append('tableId', tableId);
-        formData.append('tableClass', tableClass);
-        formData.append('headers', JSON.stringify(headers));
         $.ajaxSetup({
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -602,231 +555,204 @@ webview.addEventListener('dom-ready', () => {
         
         
          document.body.addEventListener('mouseover', event => {
-            let target = event.target;
+          let target = event.target;
+          const allowedTags = ['p', 'img', 'h1', 'h2', 'h3', 'h4' , 'h5', 'h6', 'td', 'th', 'span', 'a', 'div', 'code', 'b'];
 
-            // Find the closest table element
-            let table = target.closest('table');
-
-            if (window.click_tag == 'yes') {
+          if(window.click_tag == 'yes'){
+            return;
+          }
+            // Only highlight if the target is one of the allowed tags
+            if (!allowedTags.includes(target.tagName.toLowerCase())) {
                 return;
             }
-            // If a table is found, apply highlighting to the entire table
-            if (table && !table.classList.contains('highlight')) {
-                table.classList.add('highlight');
-
-                // Remove any existing tag name spans before adding a new one
-                let existingTag = table.querySelector('.tag-name');
-                if (!existingTag) {
-                    const tagNameSpan = document.createElement('span');
-                    tagNameSpan.classList.add('tag-name');
-                    tagNameSpan.innerText = 'table';
-                    table.appendChild(tagNameSpan);
-                }
+            
+              if (target.tagName.toLowerCase() !== 'img' && target.innerText.trim() === '') {
+            return;
             }
-        });
+            if (target.tagName.toLowerCase() !== 'img') {
+        const hasDirectText = Array.from(target.childNodes).some(node => node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== '');
+        if (!hasDirectText) {
+            return;
+        }
+        }
+
+         
+    if (target.tagName.toLowerCase() === 'img') {
+        // Create a new parent div and wrap the img element
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('highlight');
+        target.parentNode.insertBefore(wrapper, target);
+        wrapper.appendChild(target);
+
+        // Add span with tag name to the new parent div
+        const tagNameSpan = document.createElement('span');
+        tagNameSpan.classList.add('tag-name');
+        tagNameSpan.innerText = target.tagName.toLowerCase();
+        wrapper.appendChild(tagNameSpan);
+    } else {
+        target.classList.add('highlight');
+        const tagNameSpan = document.createElement('span');
+        tagNameSpan.classList.add('tag-name');
+        tagNameSpan.innerText = target.tagName.toLowerCase();
+        target.appendChild(tagNameSpan);
+    }
+    target.parentElement.classList.add('parent_highlight')
+         });
 
         document.body.addEventListener('mouseout', event => {
-            let target = event.target;
-
-            // Find the closest table element
-            let table = target.closest('table');
-
-            if (window.click_tag == 'yes') {
-                return;
-            }
-
-            // If a table is found and the mouse is leaving it, remove highlighting
-            if (table) {
-                table.classList.remove('highlight');
-
-                const tagNameSpan = table.querySelector('.tag-name');
-                if (tagNameSpan) {
-                    tagNameSpan.remove();
-                }
-            }
-        });
-
-        document.body.addEventListener('click', event => {
-            event.preventDefault();
-            event.stopPropagation();
-            
-            if (window.click_tag == 'yes') {
-                return;
-            }
-            
-            let target = event.target;
-
-            // Ensure only the whole table is selected when clicking inside it
-            let table = target.closest('table');
-
-            if (!table) {
-                return;  // Exit if the click is not inside a table
-            }
-
-            target = table;  // Set the target to the whole table
-
-            // Create Yes and No buttons if they don't already exist
-            window.click_tag = 'yes';
-            
-             openTablePopup(target);
-        });
-
-
-// Function to open a popup/modal
-function openTablePopup(target) {
-    // Remove existing popup if any
-    let existingPopup = document.getElementById('tablePopup');
-    if (existingPopup) {
-        existingPopup.remove();
-    }
-
-    // Create the popup container
-    let popup = document.createElement('div');
-    popup.id = 'tablePopup';
-    popup.classList.add('table-popup');
-
-    // Popup content
-    popup.innerHTML = \`<div class="popup-content">
-            <p>Select Table Type</p>
-            <button id="orderTableBtn">Order Table</button>
-            <button id="inventoryTableBtn">Inventory Table</button>
-            <button id="closePopupBtn">Close</button>
-        </div>\`\;
-
-    document.body.appendChild(popup);
-
-    // Event listeners for buttons
-    document.getElementById('orderTableBtn').addEventListener('click',  () => removeButtonsAndBorder_yes(target,"order"));
-
-    document.getElementById('inventoryTableBtn').addEventListener('click', () => removeButtonsAndBorder_yes(target,"inventory"));
-
-    document.getElementById('closePopupBtn').addEventListener('click', () => removeButtonsAndBorder_no(target));
-}
-
-
-    function removeButtonsAndBorder_no(target) {
-        // Remove the Yes and No buttons if they exist
-        target.classList.remove('highlight');
-        const tagNameSpan = target.querySelector('.tag-name');
+          let target = event.target;
+            if(window.click_tag == 'yes'){
+            return;
+          }
+    if (target.tagName.toLowerCase() === 'img') {
+        // Remove the highlight class and unwrap the img element
+        const wrapper = target.parentElement;
+        if (wrapper && wrapper.classList.contains('highlight')) {
+            wrapper.classList.remove('highlight');
+            const tagNameSpan = wrapper.querySelector('.tag-name');
             if (tagNameSpan) {
                 tagNameSpan.remove();
             }
-         let popup = document.getElementById('tablePopup');
-        if (popup) {
-            popup.remove();
-        }
-        window.click_tag = 'no';
-        }
 
-        function removeButtonsAndBorder_yes(target, type) {
+            // Unwrap the img element
+            wrapper.parentNode.insertBefore(target, wrapper);
+            wrapper.remove();
+        }
+    }else {
         target.classList.remove('highlight');
-
         const tagNameSpan = target.querySelector('.tag-name');
         if (tagNameSpan) {
             tagNameSpan.remove();
         }
-
-        let popup = document.getElementById('tablePopup');
-        if (popup) {
-            popup.remove();
-        }
-
-       let columnMapping = {};
-
-        if (type === 'order') {
-            columnMapping = {
-                "sku": ["sku", "sku_name", "skuname", "product_code"],
-                "pos_provider": ["pos_provider", "provider", "pos_system"],
-                "pos_inventory_id": ["pos_inventory_id", "inventory_id", "pos_id", "inv id"],
-                "customer": ["customer", "buyer", "client_name"],
-                "amount": ["amount", "price", "total_cost", "total"],
-                "delivery_type": ["delivery_type", "shipping_method", "shipment_type", "delivery"],
-                "payment_status": ["payment_status", "status", "payment_state"],
-                "timestamp": ["timestamp", "date", "order_date", "created_at"]
-            };
-        } else {
-            columnMapping = {
-                "product_variant": ["product_variant", "variant_id", "variant"],
-                "is_active": ["is_active", "active_status", "status"],
-                "stock": ["stock", "inventory_count", "available_stock"],
-                "is_delivery": ["is_delivery", "deliverable", "shipping_available"],
-                "store_sku": ["store_sku", "sku_name", "skuname", "sku", "product_code"],
-                "online_price": ["online_price", "web_price", "ecommerce_price", "price"],
-                "in_store_price": ["in_store_price", "physical_store_price", "retail_price"],
-                "distributor_price": ["distributor_price", "wholesale_price", "supplier_cost"],
-                "gross_margin": ["gross_margin", "profit_margin", "markup"],
-                "tax_percentage": ["tax_percentage", "tax_rate", "vat"]
-            };
-        }
-
-        // Function to transform table data
-        const transformData = (table) => {
-            const headers = Array.from(table.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
-            const rows = Array.from(table.querySelectorAll('tr')).slice(1).map(tr => {
-                const cells = Array.from(tr.querySelectorAll('td')).map(td => {
-                    const img = td.querySelector('img');
-                    return img ? img.src : td.innerText.trim();
-                });
-
-                let rowData = {};
-                Object.keys(columnMapping).forEach(apiKey => {
-                // Find the matching column index in the table
-                let columnIndex = headers.findIndex(header => columnMapping[apiKey].includes(header));
-                let value = columnIndex !== -1 ? cells[columnIndex] : "";
-
-                // Remove dollar sign or any currency symbol from amount
-                if (apiKey === "amount") {
-                    value = value.replace(/[^0-9.]/g, ""); // Remove non-numeric characters
-                }
-
-                rowData[apiKey] = value;
-            });
-
-                // Convert timestamp to correct format if available
-                if (rowData["timestamp"]) {
-                    rowData["timestamp"] = formatDate(rowData["timestamp"]);
-                }
-
-                return rowData;
-            });
-
-            return rows;
-        };
-
-        // Date formatter to match API's format
-        function formatDate(dateString) {
-            let date = new Date(dateString);
-            return isNaN(date.getTime()) ? "" : date.toISOString();
-        }
-
-        // Get the closest table and highlight it
-        const tableTarget = target.closest('table');
-        tableTarget.classList.add('all_highlight');
-        tableTarget.querySelectorAll('th, td').forEach(element => {
-            element.classList.add('all_highlight');
+    }
+     target.parentElement.classList.remove('parent_highlight')
         });
 
-        // Extract and structure the table data
-        let extractedData = transformData(tableTarget);
-        const tableId = tableTarget.id || "";
-        const tableClass = tableTarget.className || "";
-        const headers = Array.from(tableTarget.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
+        document.body.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopPropagation();
+          if(window.click_tag == 'yes'){
+            return;
+          }
+          let target = event.target;
+          let tagName = target.tagName.toLowerCase();
 
-        // Save structured data to database
-        window.myData_scraper = extractedData;
-        saveDataToDatabse(window.userid, window.myData_scraper, location.href , type, tableId, tableClass, headers);
+          const allowedTags = ['p', 'img', 'h1', 'h2', 'h3', 'h4' , 'h5', 'h6', 'td', 'th', 'span', 'a', 'div', 'code', 'b'];
 
-        // Remove highlight after 5 seconds
-        setTimeout(() => {
-            tableTarget.classList.remove('all_highlight');
-            target.classList.remove('highlight');
-            tableTarget.querySelectorAll('th, td').forEach(element => {
-                element.classList.remove('all_highlight');
-            });
-            window.click_tag = 'no';
-        }, 5000);
+            // Only highlight if the target is one of the allowed tags
+            if (!allowedTags.includes(target.tagName.toLowerCase())) {
+                return;
+            }
+              if (target.tagName.toLowerCase() !== 'img' && target.innerText.trim() === '') {
+            return;
+            }
+            if (target.tagName.toLowerCase() === 'div') {
+        const hasDirectText = Array.from(target.childNodes).some(node => node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== '');
+        if (!hasDirectText) {
+            return;
+        }
+        }
+
+        if (target.tagName.toLowerCase() === 'img') {
+        target = target.parentElement;
+        }
+        else{
+         target = target;   
+        }
+           // Create Yes and No buttons if they don't already exist
+          window.click_tag = 'yes';
+            if (!target.querySelector('.yes-btn') && !target.querySelector('.no-btn')) {
+                const yesbtn = document.createElement('span');
+                yesbtn.classList.add('yes-btn');
+                yesbtn.innerText = '✔️';
+                yesbtn.style.marginLeft = '10px';
+                yesbtn.style.cursor = 'pointer';
+                target.appendChild(yesbtn);
+
+                const nobtn = document.createElement('span');
+                nobtn.classList.add('no-btn');
+                nobtn.innerText = '❎';
+                nobtn.style.marginLeft = '10px';
+                nobtn.style.cursor = 'pointer';
+                target.appendChild(nobtn);
+                
+                const allbtn = document.createElement('span');
+                allbtn.classList.add('all-btn');
+                allbtn.innerText = '🔄';
+                allbtn.style.marginLeft = '10px';
+                allbtn.style.cursor = 'pointer';
+                target.appendChild(allbtn);
+                
+                // Handle Yes button click
+                yesbtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.click_tag = 'no';
+
+                    removeButtonsAndBorder_yes(target,tagName);
+
+                });
+
+                // Handle No button click
+                nobtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.click_tag = 'no';
+                    removeButtonsAndBorder_no(target);
+
+                });
+                
+                 // Handle All button click
+                allbtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    applyBorderToAllSimilarElements(target,tagName);
+                });
+        
+            }
+        })
+
+    function removeButtonsAndBorder_no(target) {
+    // Remove the Yes and No buttons if they exist
+    target.classList.remove('highlight');
+    const tagNameSpan = target.querySelector('.tag-name');
+        if (tagNameSpan) {
+            tagNameSpan.remove();
+        }
+    const yesbtn = target.querySelector('.yes-btn');
+    const nobtn = target.querySelector('.no-btn');
+    const allbtn = target.querySelector('.all-btn');
+    if (allbtn) allbtn.remove();
+    if (yesbtn) yesbtn.remove();
+    if (nobtn) nobtn.remove();
     }
 
+    function removeButtonsAndBorder_yes(target,tagName_get) {
+    // Remove the Yes and No buttons if they exist
+    target.classList.remove('highlight');
+    const tagNameSpan = target.querySelector('.tag-name');
+        if (tagNameSpan) {
+            tagNameSpan.remove();
+        }
+    const yesbtn = target.querySelector('.yes-btn');
+    const nobtn = target.querySelector('.no-btn');
+    const allbtn = target.querySelector('.all-btn');
+    if (allbtn) allbtn.remove();
+    if (yesbtn) yesbtn.remove();
+    if (nobtn) nobtn.remove();
+    if(tagName_get == 'img'){
+    window.myData_scraper.push({
+        [tagName_get]: target.querySelector('img').getAttribute('src'),
+    });
+    }
+    else{
+    window.myData_scraper.push({
+        [target.tagName.toLowerCase()]: target.innerText,
+    });
+    }
+     saveDataToDatabse(window.userid,window.myData_scraper,location.href);
+    }
+    
     
     function removeButtonsAndBorder(target) {
     // Remove the Yes and No buttons if they exist
