@@ -109,4 +109,20 @@ class SaveDataController extends Controller
             return response()->json(['message' => 'No data found'], 200);
         }
     }
+
+    public function retrieve_alldata(Request $request)
+    {
+        // Try to find an existing record with the given userid and url
+        $data = DataScrapper::where('userid', $request->userid)
+                            ->where('url', $request->url)
+                            ->first();
+
+        if ($data) {
+            // Return the data if found
+            return response()->json($data, 200);
+        } else {
+            // Return an error response if no data is found
+            return response()->json(['message' => 'No data found'], 200);
+        }
+    }
 }

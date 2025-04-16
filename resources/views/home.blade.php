@@ -54,8 +54,8 @@
                     <div class="scrapper_json mt-3">
                   <nav style="position:relative;">
       <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
-        <button class="nav-link" id="nav-order-tab" data-bs-toggle="tab" data-bs-target="#nav-order" type="button" role="tab" aria-controls="nav-order" aria-selected="true">Order</button>
-        <button class="nav-link active" id="nav-inventory-tab" data-bs-toggle="tab" data-bs-target="#nav-inventory" type="button" role="tab" aria-controls="nav-inventory" aria-selected="false">Inventory</button>
+        <button class="nav-link active" id="nav-order-tab" data-bs-toggle="tab" data-bs-target="#nav-order" type="button" role="tab" aria-controls="nav-order" aria-selected="true">Order</button>
+        <button class="nav-link" id="nav-inventory-tab" data-bs-toggle="tab" data-bs-target="#nav-inventory" type="button" role="tab" aria-controls="nav-inventory" aria-selected="false">Inventory</button>
         <a class="empty_json d-none" id="empty_json_id" href="javascript:void(0);">Empty Data</a>
         <a class="hideshowbtn" id="hidescrapper_json" href="javascript:void(0);">Hide</a>
         <a class="hideshowbtn" id="showscrapper_json" href="javascript:void(0);">show</a>
@@ -614,40 +614,149 @@ webview.addEventListener('dom-ready', () => {
         });
         }
 
-        function fetchDataToDatabse2() {
-                let formData3 = new FormData();
-                
-                // Append the key, value, and url to the FormData object
-                formData3.append('userid', window.userid);
-                formData3.append('url', location.href);
-                $.ajaxSetup({
-                  headers: {
-                      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                  }
-                });
-                // Make the AJAX call
-                $.ajax({
-                    url: 'https://pos.smugglers-system.com/api/retrieve-data',
-                    type: 'POST',
-                    data: formData3,
-                    processData: false,
-                    contentType: false,
-                    cache: false,
-                    dataType: "json",
-                    success: function(data) {
-                        if(data.message == 'No data found'){
-                        window.myData_scraper = [];
-                        }
-                        else{
-                        window.myData_scraper = data;
-                        }
+        function normalizeHeaders(headers) {
+            return headers.map(h => h.toLowerCase().trim()).sort();
+        }
 
-                                },
-                    error: function(xhr, status, error) {
-                        alert('Error: ' + error);
-                    }
-                });
+        function areHeadersMatching(headers1, headers2) {
+            let norm1 = normalizeHeaders(headers1);
+            let norm2 = normalizeHeaders(headers2);
+            return JSON.stringify(norm1) === JSON.stringify(norm2);
+        }
+
+        function autoSaveTableIfMatched() {
+            let formData = new FormData();
+            formData.append('userid', window.userid);
+            formData.append('url', location.href);
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
+            });
+
+            $.ajax({
+                url: 'https://pos.smugglers-system.com/api/retrieve-alldata',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                cache: false,
+                dataType: "json",
+                success: function(data) {
+                    if (data.message === 'No data found') return;
+
+                    let backendHeaders = JSON.parse(data.headers);
+                    let backendType = data.type;
+
+                    document.querySelectorAll('table').forEach(table => {
+                        let tableHeaders = Array.from(table.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
+                        
+                        if (areHeadersMatching(tableHeaders, backendHeaders)) {
+                            // match found, transform and save
+                            let type = backendType;
+                            let tableId = table.id || "";
+                            let tableClass = table.className || "";
+
+                            let columnMapping = type === 'order' ? {
+                                "sku": ["sku", "sku_name", "skuname", "product_code"],
+                                "pos_provider": ["pos_provider", "provider", "pos_system"],
+                                "pos_inventory_id": ["pos_inventory_id", "inventory_id", "pos_id", "inv id"],
+                                "customer": ["customer", "buyer", "client_name"],
+                                "amount": ["amount", "price", "total_cost", "total"],
+                                "delivery_type": ["delivery_type", "shipping_method", "shipment_type", "delivery"],
+                                "payment_status": ["payment_status", "status", "payment_state"],
+                                "timestamp": ["timestamp", "date", "order_date", "created_at"]
+                            } : {
+                                "product_variant": ["product_variant", "variant_id", "variant"],
+                                "is_active": ["is_active", "active_status", "status"],
+                                "stock": ["stock", "inventory_count", "available_stock"],
+                                "is_delivery": ["is_delivery", "deliverable", "shipping_available"],
+                                "store_sku": ["store_sku", "sku_name", "skuname", "sku", "product_code"],
+                                "online_price": ["online_price", "web_price", "ecommerce_price", "price"],
+                                "in_store_price": ["in_store_price", "physical_store_price", "retail_price"],
+                                "distributor_price": ["distributor_price", "wholesale_price", "supplier_cost"],
+                                "gross_margin": ["gross_margin", "profit_margin", "markup"],
+                                "tax_percentage": ["tax_percentage", "tax_rate", "vat"]
+                            };
+
+                            let extract = (table) => {
+                                let headers = Array.from(table.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
+                                let rows = Array.from(table.querySelectorAll('tr')).slice(1).map(tr => {
+                                    let cells = Array.from(tr.querySelectorAll('td')).map(td => {
+                                        let img = td.querySelector('img');
+                                        return img ? img.src : td.innerText.trim();
+                                    });
+
+                                    let rowData = {};
+                                    Object.keys(columnMapping).forEach(apiKey => {
+                                        let columnIndex = headers.findIndex(header => columnMapping[apiKey].includes(header));
+                                        let value = columnIndex !== -1 ? cells[columnIndex] : "";
+
+                                        if (apiKey === "amount") {
+                                            value = value.replace(/[^0-9.]/g, "");
+                                        }
+
+                                        rowData[apiKey] = value;
+                                    });
+
+                                    if (rowData["timestamp"]) {
+                                        let date = new Date(rowData["timestamp"]);
+                                        rowData["timestamp"] = isNaN(date.getTime()) ? "" : date.toISOString();
+                                    }
+
+                                    return rowData;
+                                });
+
+                                return rows;
+                            };
+
+                            let extractedData = extract(table);
+                            saveDataToDatabse(window.userid, extractedData, location.href, type, tableId, tableClass, tableHeaders);
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Fetch error:', error);
+                }
+            });
+        }
+
+        autoSaveTableIfMatched();
+        // function fetchDataToDatabse2() {
+        //         let formData3 = new FormData();
+                
+        //         // Append the key, value, and url to the FormData object
+        //         formData3.append('userid', window.userid);
+        //         formData3.append('url', location.href);
+        //         $.ajaxSetup({
+        //           headers: {
+        //               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        //           }
+        //         });
+        //         // Make the AJAX call
+        //         $.ajax({
+        //             url: 'https://pos.smugglers-system.com/api/retrieve-data',
+        //             type: 'POST',
+        //             data: formData3,
+        //             processData: false,
+        //             contentType: false,
+        //             cache: false,
+        //             dataType: "json",
+        //             success: function(data) {
+        //                 if(data.message == 'No data found'){
+        //                 window.myData_scraper = [];
+        //                 }
+        //                 else{
+        //                 window.myData_scraper = data;
+        //                 }
+
+        //                         },
+        //             error: function(xhr, status, error) {
+        //                 alert('Error: ' + error);
+        //             }
+        //         });
+        //         }
         // fetchDataToDatabse2();
         
         
