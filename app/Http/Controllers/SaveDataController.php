@@ -98,6 +98,7 @@ class SaveDataController extends Controller
         // Try to find an existing record with the given userid and url
         $data = DataScrapper::where('userid', $request->userid)
                             ->where('url', $request->url)
+                            ->where('type', $request->type)
                             ->first();
 
         if ($data) {

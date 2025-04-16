@@ -280,7 +280,7 @@ cursor: text;
         box-shadow: -1px 9px 18px 0px #ffc107 !important;
 }
 
-    #json_view_parent {
+    #json_view_parent_order, #json_view_parent_inventory {
         font-family: monospace;
         background: #f4f4f4;
         padding: 0px;

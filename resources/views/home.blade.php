@@ -54,23 +54,28 @@
                     <div class="scrapper_json mt-3">
                   <nav style="position:relative;">
       <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
-        <!-- <button class="nav-link" id="nav-csv-tab" data-bs-toggle="tab" data-bs-target="#nav-csv" type="button" role="tab" aria-controls="nav-csv" aria-selected="true">CSV/Excel</button> -->
-        <button class="nav-link active" id="nav-json-tab" data-bs-toggle="tab" data-bs-target="#nav-json" type="button" role="tab" aria-controls="nav-json" aria-selected="false">JSON</button>
-        <a class="empty_json" id="empty_json_id" href="javascript:void(0);">Empty Data</a>
+        <button class="nav-link" id="nav-order-tab" data-bs-toggle="tab" data-bs-target="#nav-order" type="button" role="tab" aria-controls="nav-order" aria-selected="true">Order</button>
+        <button class="nav-link active" id="nav-inventory-tab" data-bs-toggle="tab" data-bs-target="#nav-inventory" type="button" role="tab" aria-controls="nav-inventory" aria-selected="false">Inventory</button>
+        <a class="empty_json d-none" id="empty_json_id" href="javascript:void(0);">Empty Data</a>
         <a class="hideshowbtn" id="hidescrapper_json" href="javascript:void(0);">Hide</a>
         <a class="hideshowbtn" id="showscrapper_json" href="javascript:void(0);">show</a>
       </div>
     </nav>
 
       <div class="tab-content p-3 border bg-light" id="nav-tabContent">
-      <div class="tab-pane fade" id="nav-csv" role="tabpanel" aria-labelledby="nav-csv-tab">
-        <p></p>
-      </div>
-      <div class="tab-pane fade active show" id="nav-json" role="tabpanel" aria-labelledby="nav-json-tab">
+      <div class="tab-pane fade active show" id="nav-order" role="tabpanel" aria-labelledby="nav-order-tab">
         <div id="preloader2" class="hidden">
             <div class="spinner"></div>
         </div>
-        <p id="json_view_parent">
+        <p id="json_view_parent_order">
+          
+        </p>
+      </div>
+      <div class="tab-pane fade" id="nav-inventory" role="tabpanel" aria-labelledby="nav-inventory-tab">
+        <div id="preloader2" class="hidden">
+            <div class="spinner"></div>
+        </div>
+        <p id="json_view_parent_inventory">
           
         </p>
       </div>
@@ -94,7 +99,8 @@ const preloader = document.getElementById("preloader")
 const preloader2 = document.getElementById("preloader2")
 const gotogoogle = document.getElementById("gotogoogle")
 const select_mode = document.getElementById("select_mode")
-let json_view_parent = document.getElementById("json_view_parent")
+let json_view_parent_order = document.getElementById("json_view_parent_order")
+let json_view_parent_inventory = document.getElementById("json_view_parent_inventory")
 let empty_json_id = document.getElementById("empty_json_id")
 let finalurl = '';
 
@@ -367,6 +373,7 @@ function fetchDataToDatabse() {
         // Append the key, value, and url to the FormData object
         formData2.append('userid', window.userid);
         formData2.append('url', document.getElementById('url').value);
+        formData2.append('type', 'order');
         $.ajaxSetup({
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -383,16 +390,58 @@ function fetchDataToDatabse() {
             dataType: "json",
             success: function(data) {
                 if(data.message == 'No data found'){
-                    json_view_parent.innerHTML = 'No Scrapping Data';
-                    empty_json_id.style.display = 'none';
+                    json_view_parent_order.innerHTML = 'No Scrapping Data';
+                    // empty_json_id.style.display = 'none';
                 }
                 else if(data == ''){
-                    json_view_parent.innerHTML = 'No Scrapping Data';
-                    empty_json_id.style.display = 'none';
+                    json_view_parent_order.innerHTML = 'No Scrapping Data';
+                    // empty_json_id.style.display = 'none';
                 }
                 else{
-                json_view_parent.innerHTML = syntaxHighlight(data);
-                empty_json_id.style.display = 'block';
+                json_view_parent_order.innerHTML = syntaxHighlight(data);
+                // empty_json_id.style.display = 'block';
+                }
+                hidePreloader2();
+                        },
+            error: function(xhr, status, error) {
+                alert('Error: ' + error);
+            }
+        });
+        }
+
+function fetchDataToDatabse_inventory() {
+        let formData2 = new FormData();
+        
+        // Append the key, value, and url to the FormData object
+        formData2.append('userid', window.userid);
+        formData2.append('url', document.getElementById('url').value);
+        formData2.append('type', 'inventory');
+        $.ajaxSetup({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
+        // Make the AJAX call
+        $.ajax({
+            url: 'https://pos.smugglers-system.com/api/retrieve-data',
+            type: 'POST',
+            data: formData2,
+            processData: false,
+            contentType: false,
+            cache: false,
+            dataType: "json",
+            success: function(data) {
+                if(data.message == 'No data found'){
+                    json_view_parent_inventory.innerHTML = 'No Scrapping Data';
+                    // empty_json_id.style.display = 'none';
+                }
+                else if(data == ''){
+                    json_view_parent_inventory.innerHTML = 'No Scrapping Data';
+                    // empty_json_id.style.display = 'none';
+                }
+                else{
+                json_view_parent_inventory.innerHTML = syntaxHighlight(data);
+                // empty_json_id.style.display = 'block';
                 }
                 hidePreloader2();
                         },
@@ -404,6 +453,7 @@ function fetchDataToDatabse() {
 
 setInterval(function(){
 fetchDataToDatabse()
+fetchDataToDatabse_inventory()
 },5000)
 
 function addWebviewEventListener() {
@@ -598,7 +648,7 @@ webview.addEventListener('dom-ready', () => {
                     }
                 });
                 }
-        fetchDataToDatabse2();
+        // fetchDataToDatabse2();
         
         
          document.body.addEventListener('mouseover', event => {
