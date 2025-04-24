@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\DataScrapper; // Adjust this to your actual model
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
+
 
 class SaveDataController extends Controller
 {
