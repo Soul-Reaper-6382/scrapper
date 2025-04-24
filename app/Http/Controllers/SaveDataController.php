@@ -136,9 +136,9 @@ class SaveDataController extends Controller
     }
 
     
-    public function send_data(Request $request)
+   public function send_data(Request $request)
     {
-        
+        try {
             $data = DataScrapper::where('userid', $request->userid)
                                 ->where('url', $request->url)
                                 ->where('type', 'inventory')
@@ -153,27 +153,33 @@ class SaveDataController extends Controller
             $failed = [];
 
             foreach ($decodedData as $item) {
-                // try {
+                try {
+                    // Log the access token and request payload for debugging
+                    Log::info('Access Token: ' . Session::get('access_token'));
+                    Log::info('Request Payload: ' . json_encode($item));
+
+                    // Ensure correct Content-Type is set
                     $response = Http::withHeaders([
                         'Authorization' => 'Bearer ' . Session::get('access_token'),
                         'Accept' => 'application/json',
+                        'Content-Type' => 'application/json',
                     ])->post(env('API_Smugglers_URL') . 'api/pos/smugglers/inventory/store-inventory/create/', $item);
 
-                    // if ($response->successful()) {
-                    //     $success[] = $item;
-                    // } else {
-                    //     $failed[] = [
-                    //         'item' => $item,
-                    //         'error' => $response->body(),
-                    //     ];
-                    // }
-                // } catch (\Exception $e) {
-                //     $failed[] = [
-                //         'item' => $item,
-                //         'error' => $e->getMessage(),
-                //     ];
-                //     Log::error('Item POST failed: ' . $e->getMessage());
-                // }
+                    if ($response->successful()) {
+                        $success[] = $item;
+                    } else {
+                        $failed[] = [
+                            'item' => $item,
+                            'error' => $response->body(),
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    $failed[] = [
+                        'item' => $item,
+                        'error' => $e->getMessage(),
+                    ];
+                    Log::error('Item POST failed: ' . $e->getMessage());
+                }
             }
 
             return response()->json([
@@ -183,7 +189,11 @@ class SaveDataController extends Controller
                 'failed_items' => $failed
             ], 200);
 
-       
+        } catch (\Exception $e) {
+            Log::error('Send Data Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Server error', 'details' => $e->getMessage()], 500);
+        }
     }
+
 
 }
