@@ -138,48 +138,55 @@ class SaveDataController extends Controller
     
     public function send_data(Request $request)
     {
-        $data = DataScrapper::where('userid', $request->userid)
-                            ->where('url', $request->url)
-                            ->where('type', 'inventory')
-                            ->first();
+        try {
+            $data = DataScrapper::where('userid', $request->userid)
+                                ->where('url', $request->url)
+                                ->where('type', 'inventory')
+                                ->first();
 
-        if (!$data) {
-            return response()->json(['message' => 'No data found'], 200);
-        }
+            if (!$data) {
+                return response()->json(['message' => 'No data found'], 200);
+            }
 
-        $decodedData = json_decode($data->data, true); // array of inventory items
-        $success = [];
-        $failed = [];
+            $decodedData = json_decode($data->data, true);
+            $success = [];
+            $failed = [];
 
-        foreach ($decodedData as $item) {
-            try {
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . Session::get('access_token'),
-                    'Accept' => 'application/json',
-                ])->post(env('API_Smugglers_URL') . 'api/pos/smugglers/inventory/store-inventory/create/', $item);
+            foreach ($decodedData as $item) {
+                try {
+                    $response = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . Session::get('access_token'),
+                        'Accept' => 'application/json',
+                    ])->post(env('API_Smugglers_URL') . 'api/pos/smugglers/inventory/store-inventory/create/', $item);
 
-                if ($response->successful()) {
-                    $success[] = $item;
-                } else {
+                    if ($response->successful()) {
+                        $success[] = $item;
+                    } else {
+                        $failed[] = [
+                            'item' => $item,
+                            'error' => $response->body(),
+                        ];
+                    }
+                } catch (\Exception $e) {
                     $failed[] = [
                         'item' => $item,
-                        'error' => $response->body(),
+                        'error' => $e->getMessage(),
                     ];
+                    Log::error('Item POST failed: ' . $e->getMessage());
                 }
-            } catch (\Exception $e) {
-                $failed[] = [
-                    'item' => $item,
-                    'error' => $e->getMessage(),
-                ];
             }
-        }
 
-        return response()->json([
-            'message' => 'Inventory data processed',
-            'success_count' => count($success),
-            'failed_count' => count($failed),
-            'failed_items' => $failed
-        ], 200);
+            return response()->json([
+                'message' => 'Inventory data processed',
+                'success_count' => count($success),
+                'failed_count' => count($failed),
+                'failed_items' => $failed
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Send Data Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Server error', 'details' => $e->getMessage()], 500);
+        }
     }
 
 }
