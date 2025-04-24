@@ -142,26 +142,27 @@ class SaveDataController extends Controller
    public function send_data(Request $request)
     {
         try {
-            $data = DataScrapper::where('userid', $request->userid)
-                                ->where('url', $request->url)
-                                ->where('type', 'inventory')
-                                ->first();
+            // Process Inventory Data
+            $inventoryData = DataScrapper::where('userid', $request->userid)
+                                         ->where('url', $request->url)
+                                         ->where('type', 'inventory')
+                                         ->first();
 
-            if (!$data) {
-                return response()->json(['message' => 'No data found'], 200);
+            if (!$inventoryData) {
+                return response()->json(['message' => 'No inventory data found'], 200);
             }
 
-            $decodedData = json_decode($data->data, true);
-            $success = [];
-            $failed = [];
+            $decodedInventoryData = json_decode($inventoryData->data, true);
+            $inventorySuccess = [];
+            $inventoryFailed = [];
 
-            foreach ($decodedData as $item) {
+            foreach ($decodedInventoryData as $item) {
                 try {
                     // Log the access token and request payload for debugging
                     Log::info('Access Token: ' . Session::get('access_token'));
-                    Log::info('Request Payload: ' . json_encode($item));
+                    Log::info('Inventory Request Payload: ' . json_encode($item));
 
-                    // Ensure correct Content-Type is set
+                    // Send inventory data to the API
                     $response = Http::withHeaders([
                         'Authorization' => 'Bearer ' . Session::get('access_token'),
                         'Accept' => 'application/json',
@@ -169,27 +170,79 @@ class SaveDataController extends Controller
                     ])->post(env('API_Smugglers_URL') . 'api/pos/smugglers/inventory/store-inventory/create/', $item);
 
                     if ($response->successful()) {
-                        $success[] = $item;
+                        $inventorySuccess[] = $item;
                     } else {
-                        $failed[] = [
+                        $inventoryFailed[] = [
                             'item' => $item,
                             'error' => $response->body(),
                         ];
                     }
                 } catch (\Exception $e) {
-                    $failed[] = [
+                    $inventoryFailed[] = [
                         'item' => $item,
                         'error' => $e->getMessage(),
                     ];
-                    Log::error('Item POST failed: ' . $e->getMessage());
+                    Log::error('Inventory Item POST failed: ' . $e->getMessage());
                 }
             }
 
+            // Process Order Data
+            $orderData = DataScrapper::where('userid', $request->userid)
+                                     ->where('url', $request->url)
+                                     ->where('type', 'order')
+                                     ->first();
+
+            if (!$orderData) {
+                return response()->json(['message' => 'No order data found'], 200);
+            }
+
+            $decodedOrderData = json_decode($orderData->data, true);
+            $orderSuccess = [];
+            $orderFailed = [];
+
+            foreach ($decodedOrderData as $item) {
+                try {
+                    // Log the access token and request payload for debugging
+                    Log::info('Access Token: ' . Session::get('access_token'));
+                    Log::info('Order Request Payload: ' . json_encode($item));
+
+                    // Send order data to the API
+                    $response = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . Session::get('access_token'),
+                        'Accept' => 'application/json',
+                        'Content-Type' => 'application/json',
+                    ])->post(env('API_Smugglers_URL') . 'api/pos/smugglers/customer-orders/', $item);
+
+                    if ($response->successful()) {
+                        $orderSuccess[] = $item;
+                    } else {
+                        $orderFailed[] = [
+                            'item' => $item,
+                            'error' => $response->body(),
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    $orderFailed[] = [
+                        'item' => $item,
+                        'error' => $e->getMessage(),
+                    ];
+                    Log::error('Order Item POST failed: ' . $e->getMessage());
+                }
+            }
+
+            // Return combined result for both inventory and order data
             return response()->json([
-                'message' => 'Inventory data processed',
-                'success_count' => count($success),
-                'failed_count' => count($failed),
-                'failed_items' => $failed
+                'message' => 'Data processed',
+                'inventory' => [
+                    'success_count' => count($inventorySuccess),
+                    'failed_count' => count($inventoryFailed),
+                    'failed_items' => $inventoryFailed,
+                ],
+                'orders' => [
+                    'success_count' => count($orderSuccess),
+                    'failed_count' => count($orderFailed),
+                    'failed_items' => $orderFailed,
+                ]
             ], 200);
 
         } catch (\Exception $e) {
@@ -197,6 +250,7 @@ class SaveDataController extends Controller
             return response()->json(['error' => 'Server error', 'details' => $e->getMessage()], 500);
         }
     }
+
 
 
 }
