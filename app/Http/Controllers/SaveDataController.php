@@ -97,43 +97,43 @@ class SaveDataController extends Controller
     
     public function retrieve(Request $request)
     {
-        $records = DataScrapper::where('userid', $request->userid)
-                                ->where('url', $request->url)
-                                ->where('type', $request->type)
-                                ->get();
-
-        if ($records->isEmpty()) {
-            return response()->json(['message' => 'No data found'], 200);
-        }
-
-        $transformed = $records->map(function ($record) {
-            return [
-                'headers' => $record->headers,
-                'data' => $record->data,
-                'type' => $record->type,
-                'table_id' => $record->table_id,
-                'table_class' => $record->table_class
-            ];
-        });
-
-        return response()->json($transformed, 200);
-    }
-
-
-    public function retrieve_alldata(Request $request)
-    {
         // Try to find an existing record with the given userid and url
         $data = DataScrapper::where('userid', $request->userid)
                             ->where('url', $request->url)
+                            ->where('type', $request->type)
                             ->first();
 
         if ($data) {
             // Return the data if found
-            return response()->json($data, 200);
+            return response()->json(json_decode($data->data), 200);
         } else {
             // Return an error response if no data is found
             return response()->json(['message' => 'No data found'], 200);
         }
+    }
+
+    public function retrieve_alldata(Request $request)
+    {
+       $records = DataScrapper::where('userid', $request->userid)
+                            ->where('url', $request->url)
+                            ->where('type', $request->type)
+                            ->get();
+
+    if ($records->isEmpty()) {
+        return response()->json(['message' => 'No data found'], 200);
+    }
+
+    $transformed = $records->map(function ($record) {
+        return [
+            'headers' => $record->headers,
+            'data' => $record->data,
+            'type' => $record->type,
+            'table_id' => $record->table_id,
+            'table_class' => $record->table_class
+        ];
+    });
+
+    return response()->json($transformed, 200);
     }
 
     
