@@ -13,7 +13,7 @@ class HomeController extends Controller
 
     public function index()
     {
-         if (!Session::has('auth_token')) {
+         if (!Session::has('refresh_token')) {
             return redirect()->route('login')->with('error', 'You need to log in first.');
         }
 

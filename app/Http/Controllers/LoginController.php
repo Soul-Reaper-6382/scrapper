@@ -13,7 +13,7 @@ class LoginController extends Controller
 {
     public function showLoginForm()
     {
-        if (Session::has('auth_token')) {
+        if (Session::has('refresh_token')) {
         return redirect()->route('home');
         }
 
@@ -46,8 +46,17 @@ class LoginController extends Controller
             $data = json_decode($response->getBody(), true);
             // dd($data);
             // Store the token in the session
-            Session::put('auth_id', $data['results']['id']);
-            Session::put('auth_token', $data['results']['access']);
+            // Store access and refresh tokens
+            Session::put('access_token', $data['results']['access']);
+            Session::put('refresh_token', $data['results']['refresh']);
+
+            // Store user and store IDs
+            Session::put('user_id', $data['results']['id']);
+            Session::put('store_id', $data['results']['store']['id']);
+
+            // Optional: Store user role and name
+            Session::put('role', $data['results']['role']['name']);
+            Session::put('user_name', $data['results']['name']);
             
             return redirect()->route('home'); // Change to your intended route
         } catch (\GuzzleHttp\Exception\RequestException $e) {
@@ -57,8 +66,13 @@ class LoginController extends Controller
 
     public function logout()
     {
-        Session::forget('auth_id');
-        Session::forget('auth_token');
+        Session::forget([
+        'access_token',
+        'refresh_token',
+        'user_id',
+        'store_id',
+        'role',
+        'user_name']);
         return redirect()->route('login.form');
     }
 }

@@ -86,7 +86,7 @@
     </div>
 
 <script type="module">
-window.userid = @json(session('auth_id')); // This will embed the session value in JavaScript
+window.storeid = @json(session('store_id')); // This will embed the session value in JavaScript
 
 
 const back_btn = document.getElementById("back-btn")
@@ -112,7 +112,7 @@ empty_json_id.addEventListener('click',(event) => {
         let formData_json = new FormData();
         
         // Append the key, value, and url to the FormData object
-        formData_json.append('key', window.userid);
+        formData_json.append('key', window.storeid);
         formData_json.append('value', '[]');
         formData_json.append('url', go_url.value);
         $.ajaxSetup({
@@ -372,7 +372,7 @@ function fetchDataToDatabse() {
         let formData2 = new FormData();
         
         // Append the key, value, and url to the FormData object
-        formData2.append('userid', window.userid);
+        formData2.append('userid', window.storeid);
         formData2.append('url', document.getElementById('url').value);
         formData2.append('type', 'order');
         $.ajaxSetup({
@@ -414,7 +414,7 @@ function fetchDataToDatabse_inventory() {
         let formData2 = new FormData();
         
         // Append the key, value, and url to the FormData object
-        formData2.append('userid', window.userid);
+        formData2.append('userid', window.storeid);
         formData2.append('url', document.getElementById('url').value);
         formData2.append('type', 'inventory');
         $.ajaxSetup({
@@ -456,7 +456,7 @@ function fetchDataToDatabse_inventory() {
         let formData2 = new FormData();
         
         // Append the key, value, and url to the FormData object
-        formData2.append('userid', window.userid);
+        formData2.append('userid', window.storeid);
         formData2.append('url', document.getElementById('url').value);
         $.ajaxSetup({
           headers: {
@@ -493,7 +493,7 @@ saveDataToAPI()
 function addWebviewEventListener() {
 webview.addEventListener('dom-ready', () => {
        webview.executeJavaScript(`
-        window.userid = '${window.userid}';
+        window.storeid = '${window.storeid}';
         const style = document.createElement('style');
         style.innerHTML = \`
           .highlight {
@@ -660,7 +660,7 @@ webview.addEventListener('dom-ready', () => {
 
         function autoSaveTableIfMatched() {
             let formData = new FormData();
-            formData.append('userid', window.userid);
+            formData.append('userid', window.storeid);
             formData.append('url', location.href);
 
             $.ajaxSetup({
@@ -679,9 +679,9 @@ webview.addEventListener('dom-ready', () => {
                 dataType: "json",
                 success: function(data) {
                     if (data.message === 'No data found') return;
-
-                    let backendHeaders = JSON.parse(data.headers);
-                    let backendType = data.type;
+                    data.forEach(entry => {
+                    let backendHeaders = JSON.parse(entry.headers);
+                    let backendType = entry.type;
 
                     document.querySelectorAll('table').forEach(table => {
                         let tableHeaders = Array.from(table.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
@@ -693,63 +693,96 @@ webview.addEventListener('dom-ready', () => {
                             let tableClass = table.className || "";
 
                             let columnMapping = type === 'order' ? {
-                                "sku": ["sku", "sku_name", "skuname", "product_code"],
-                                "pos_provider": ["pos_provider", "provider", "pos_system"],
-                                "pos_inventory_id": ["pos_inventory_id", "inventory_id", "pos_id", "inv id"],
-                                "customer": ["customer", "buyer", "client_name"],
-                                "amount": ["amount", "price", "total_cost", "total"],
-                                "delivery_type": ["delivery_type", "shipping_method", "shipment_type", "delivery"],
-                                "payment_status": ["payment_status", "status", "payment_state"],
-                                "timestamp": ["timestamp", "date", "order_date", "created_at"]
+                                 "sku": ["Store SKU","sku", "sku_name", "skuname", "product_code"],
+                                    "quantity": ["quantity","qty"],
+                                    "name": ["customer", "buyer", "client_name"],
+                                    "customer_email": ["email", "customer email", "email_address"],
+                                    "customer_phone": ["phone", "phone_number", "contact"],
+                                    "unit_price": ["amount", "price", "total_cost", "total", "unit_price"],
+                                    "delivery_type": ["delivery type","delivery_type", "shipping_method", "shipment_type", "delivery"],
+                                    "payment_status": ["payment status","payment_status", "status", "payment_state"],
+                                    "timestamp": ["timestamp", "date", "order_date", "created_at"]
                             } : {
-                                "product_variant": ["product_variant", "variant_id", "variant"],
-                                "is_active": ["is_active", "active_status", "status"],
-                                "stock": ["stock", "inventory_count", "available_stock"],
-                                "is_delivery": ["is_delivery", "deliverable", "shipping_available"],
-                                "store_sku": ["store_sku", "sku_name", "skuname", "sku", "product_code"],
-                                "online_price": ["online_price", "web_price", "ecommerce_price", "price"],
-                                "in_store_price": ["in_store_price", "physical_store_price", "retail_price"],
-                                "distributor_price": ["distributor_price", "wholesale_price", "supplier_cost"],
-                                "gross_margin": ["gross_margin", "profit_margin", "markup"],
-                                "tax_percentage": ["tax_percentage", "tax_rate", "vat"]
-                            };
+                                  "product_variant": ["product variant","product_variant", "variant_id", "variant", "product_id", "p_id"],
+                                    "is_active": ["is active","is_active", "active_status", "status"],
+                                    "stock": ["stock", "inventory_count", "available_stock"],
+                                    "is_delivery": ["is delivery","is_delivery", "deliverable", "shipping_available"],
+                                    "store_sku": ["store sku","store_sku", "sku_name", "skuname", "sku", "product_code"],
+                                    "online_price": ["online price","online_price", "web_price", "ecommerce_price", "price"],
+                                    "in_store_price": ["in-store price","in_store_price", "physical_store_price", "retail_price"],
+                                    "distributor_price": ["distributor price","distributor_price", "wholesale_price", "supplier_cost"],
+                                    "gross_margin": ["gross margin","gross_margin", "profit_margin", "markup"],
+                                    "tax_percentage": ["tax percentage","tax_percentage", "tax_rate", "vat"]
+                                };
 
-                            let extract = (table) => {
-                                let headers = Array.from(table.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
-                                let rows = Array.from(table.querySelectorAll('tr')).slice(1).map(tr => {
-                                    let cells = Array.from(tr.querySelectorAll('td')).map(td => {
-                                        let img = td.querySelector('img');
-                                        return img ? img.src : td.innerText.trim();
-                                    });
+                            const extract = (table, type) => {
+                            const headers = Array.from(table.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
 
-                                    let rowData = {};
-                                    Object.keys(columnMapping).forEach(apiKey => {
-                                        let columnIndex = headers.findIndex(header => columnMapping[apiKey].includes(header));
-                                        let value = columnIndex !== -1 ? cells[columnIndex] : "";
-
-                                        if (apiKey === "amount") {
-                                            value = value.replace(/[^0-9.]/g, "");
-                                        }
-
-                                        rowData[apiKey] = value;
-                                    });
-
-                                    if (rowData["timestamp"]) {
-                                        let date = new Date(rowData["timestamp"]);
-                                        rowData["timestamp"] = isNaN(date.getTime()) ? "" : date.toISOString();
-                                    }
-
-                                    rowData["store"] = window.userid || "";
-                                    return rowData;
+                            const rows = Array.from(table.querySelectorAll('tr')).slice(1).map(tr => {
+                                const cells = Array.from(tr.querySelectorAll('td')).map(td => {
+                                    const img = td.querySelector('img');
+                                    return img ? img.src : td.innerText.trim();
                                 });
 
-                                return rows;
-                            };
+                                let rowData = {};
+                                Object.keys(columnMapping).forEach(apiKey => {
+                                    let columnIndex = headers.findIndex(header => columnMapping[apiKey].includes(header));
+                                    let value = columnIndex !== -1 ? cells[columnIndex] : "";
 
-                            let extractedData2 = extract(table);
-                            saveDataToDatabse(window.userid, extractedData2, location.href, type, tableId, tableClass, tableHeaders);
+                                    const cleanNumberFields = ["unit_price", "online_price", "in_store_price", "distributor_price", "gross_margin", "tax_percentage"];
+                                    if (cleanNumberFields.includes(apiKey)) {
+                                        value = value.replace(/[^0-9.]/g, "");
+                                    }
+
+                                    rowData[apiKey] = value;
+                                });
+
+                                if (type === 'order') {
+                                    return {
+                                        sku: rowData["sku"] || "",
+                                        quantity: parseInt(rowData["quantity"]) || 0,
+                                        customer: {
+                                            name: rowData["customer"] || "",
+                                            phone_number: rowData["customer_phone"] || "",
+                                            email: rowData["customer_email"] || ""
+                                        },
+                                        unit_price: rowData["unit_price"] || "",
+                                        store: window.storeid || 1,
+                                        delivery_type: rowData["delivery_type"] || "",
+                                        payment_status: rowData["payment_status"] || "",
+                                        timestamp: rowData["timestamp"] ? formatDate2(rowData["timestamp"]) : ""
+                                    };
+                                } else {
+                                    return {
+                                        product_variant: rowData["product_variant"] || "",
+                                        is_active: rowData["is_active"] === "true",
+                                        stock: parseInt(rowData["stock"]) || 0,
+                                        is_delivery: rowData["is_delivery"] === "true",
+                                        store_sku: rowData["store_sku"] || "",
+                                        online_price: rowData["online_price"] || "",
+                                        in_store_price: rowData["in_store_price"] || "",
+                                        distributor_price: rowData["distributor_price"] || "",
+                                        gross_margin: rowData["gross_margin"] || "",
+                                        tax_percentage: rowData["tax_percentage"] || "",
+                                        store: window.storeid || 1
+                                    };
+                                }
+                            });
+
+                            return rows;
+                        };
+
+                        // Helper to format date to ISO
+                        function formatDate2(dateString) {
+                            let date = new Date(dateString);
+                            return isNaN(date.getTime()) ? "" : date.toISOString();
+                        }
+
+                            let extractedData2 = extract(table,type);
+                            saveDataToDatabse(window.storeid, extractedData2, location.href, type, tableId, tableClass, tableHeaders);
                         }
                     });
+                });
                 },
                 error: function(xhr, status, error) {
                     console.error('Fetch error:', error);
@@ -764,7 +797,7 @@ webview.addEventListener('dom-ready', () => {
         //         let formData3 = new FormData();
                 
         //         // Append the key, value, and url to the FormData object
-        //         formData3.append('userid', window.userid);
+        //         formData3.append('userid', window.storeid);
         //         formData3.append('url', location.href);
         //         $.ajaxSetup({
         //           headers: {
@@ -900,131 +933,121 @@ function openTablePopup(target) {
 }
 
 
-    function removeButtonsAndBorder_no(target) {
-        // Remove the Yes and No buttons if they exist
-        target.classList.remove('highlight');
-        const tagNameSpan = target.querySelector('.tag-name');
-            if (tagNameSpan) {
-                tagNameSpan.remove();
-            }
-         let popup = document.getElementById('tablePopup');
-        if (popup) {
-            popup.remove();
+    function removeButtonsAndBorder_yes(target, type) {
+    target.classList.remove('highlight');
+
+    const tagNameSpan = target.querySelector('.tag-name');
+    if (tagNameSpan) {
+        tagNameSpan.remove();
+    }
+
+    let popup = document.getElementById('tablePopup');
+    if (popup) {
+        popup.remove();
+    }
+
+    const columnMapping = type === 'order'
+        ? {
+            "sku": ["Store SKU", "sku", "sku_name", "skuname", "product_code"],
+            "quantity": ["quantity", "qty"],
+            "name": ["customer", "buyer", "client_name"],
+            "customer_email": ["email", "customer email", "email_address"],
+            "customer_phone": ["phone", "phone_number", "contact"],
+            "unit_price": ["amount", "price", "total_cost", "total", "unit_price"],
+            "delivery_type": ["delivery type", "delivery_type", "shipping_method", "shipment_type", "delivery"],
+            "payment_status": ["payment status", "payment_status", "status", "payment_state"],
+            "timestamp": ["timestamp", "date", "order_date", "created_at"]
         }
-        window.click_tag = 'no';
-        }
+        : {
+            "product_variant": ["product variant", "product_variant", "variant_id", "variant", "product_id", "p_id"],
+            "is_active": ["is active", "is_active", "active_status", "status"],
+            "stock": ["stock", "inventory_count", "available_stock"],
+            "is_delivery": ["is delivery", "is_delivery", "deliverable", "shipping_available"],
+            "store_sku": ["store sku", "store_sku", "sku_name", "skuname", "sku", "product_code"],
+            "online_price": ["online price", "online_price", "web_price", "ecommerce_price", "price"],
+            "in_store_price": ["in-store price", "in_store_price", "physical_store_price", "retail_price"],
+            "distributor_price": ["distributor price", "distributor_price", "wholesale_price", "supplier_cost"],
+            "gross_margin": ["gross margin", "gross_margin", "profit_margin", "markup"],
+            "tax_percentage": ["tax percentage", "tax_percentage", "tax_rate", "vat"]
+        };
 
-        function removeButtonsAndBorder_yes(target, type) {
-        target.classList.remove('highlight');
+    // Helper to format date to ISO
+    function formatDate(dateString) {
+        let date = new Date(dateString);
+        return isNaN(date.getTime()) ? "" : date.toISOString();
+    }
 
-        const tagNameSpan = target.querySelector('.tag-name');
-        if (tagNameSpan) {
-            tagNameSpan.remove();
-        }
+    const transformData = (table) => {
+        const headers = Array.from(table.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
 
-        let popup = document.getElementById('tablePopup');
-        if (popup) {
-            popup.remove();
-        }
+        const rows = Array.from(table.querySelectorAll('tr')).slice(1).map(tr => {
+            const cells = Array.from(tr.querySelectorAll('td')).map(td => {
+                const img = td.querySelector('img');
+                return img ? img.src : td.innerText.trim();
+            });
 
-       let columnMapping = {};
-
-        if (type === 'order') {
-            columnMapping = {
-                "sku": ["sku", "sku_name", "skuname", "product_code"],
-                "pos_provider": ["pos_provider", "provider", "pos_system"],
-                "pos_inventory_id": ["pos_inventory_id", "inventory_id", "pos_id", "inv id"],
-                "customer": ["customer", "buyer", "client_name"],
-                "amount": ["amount", "price", "total_cost", "total"],
-                "delivery_type": ["delivery_type", "shipping_method", "shipment_type", "delivery"],
-                "payment_status": ["payment_status", "status", "payment_state"],
-                "timestamp": ["timestamp", "date", "order_date", "created_at"]
-            };
-        } else {
-            columnMapping = {
-                "product_variant": ["product_variant", "variant_id", "variant"],
-                "is_active": ["is_active", "active_status", "status"],
-                "stock": ["stock", "inventory_count", "available_stock"],
-                "is_delivery": ["is_delivery", "deliverable", "shipping_available"],
-                "store_sku": ["store_sku", "sku_name", "skuname", "sku", "product_code"],
-                "online_price": ["online_price", "web_price", "ecommerce_price", "price"],
-                "in_store_price": ["in_store_price", "physical_store_price", "retail_price"],
-                "distributor_price": ["distributor_price", "wholesale_price", "supplier_cost"],
-                "gross_margin": ["gross_margin", "profit_margin", "markup"],
-                "tax_percentage": ["tax_percentage", "tax_rate", "vat"]
-            };
-        }
-
-        // Function to transform table data
-        const transformData = (table) => {
-            const headers = Array.from(table.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
-            const rows = Array.from(table.querySelectorAll('tr')).slice(1).map(tr => {
-                const cells = Array.from(tr.querySelectorAll('td')).map(td => {
-                    const img = td.querySelector('img');
-                    return img ? img.src : td.innerText.trim();
-                });
-
-                let rowData = {};
-                Object.keys(columnMapping).forEach(apiKey => {
-                // Find the matching column index in the table
+            let rowData = {};
+            Object.keys(columnMapping).forEach(apiKey => {
                 let columnIndex = headers.findIndex(header => columnMapping[apiKey].includes(header));
                 let value = columnIndex !== -1 ? cells[columnIndex] : "";
 
-                // Remove dollar sign or any currency symbol from amount
-                if (apiKey === "amount") {
-                    value = value.replace(/[^0-9.]/g, ""); // Remove non-numeric characters
+                const cleanNumberFields = ["unit_price", "online_price", "in_store_price", "distributor_price", "gross_margin", "tax_percentage"];
+                if (cleanNumberFields.includes(apiKey)) {
+                    value = value.replace(/[^0-9.]/g, "");
                 }
 
                 rowData[apiKey] = value;
             });
 
-                // Convert timestamp to correct format if available
-                if (rowData["timestamp"]) {
-                    rowData["timestamp"] = formatDate(rowData["timestamp"]);
-                }
-
-                rowData["store"] = window.userid || "";
-                return rowData;
-            });
-
-            return rows;
-        };
-
-        // Date formatter to match API's format
-        function formatDate(dateString) {
-            let date = new Date(dateString);
-            return isNaN(date.getTime()) ? "" : date.toISOString();
-        }
-
-        // Get the closest table and highlight it
-        let tableTarget = target.closest('table');
-        tableTarget.classList.add('all_highlight');
-        tableTarget.querySelectorAll('th, td').forEach(element => {
-            element.classList.add('all_highlight');
+            if (type === 'order') {
+                return {
+                    sku: rowData["sku"] || "",
+                    quantity: parseInt(rowData["quantity"]) || 0,
+                    customer: {
+                        name: rowData["name"] || "",
+                        phone_number: rowData["customer_phone"] || "",
+                        email: rowData["customer_email"] || ""
+                    },
+                    unit_price: rowData["unit_price"] || "",
+                    store: window.storeid || 1,
+                    delivery_type: rowData["delivery_type"] || "",
+                    payment_status: rowData["payment_status"] || "",
+                    timestamp: rowData["timestamp"] ? formatDate(rowData["timestamp"]) : ""
+                };
+            } else {
+                return {
+                    product_variant: rowData["product_variant"] || "",
+                    is_active: rowData["is_active"] === "true",
+                    stock: parseInt(rowData["stock"]) || 0,
+                    is_delivery: rowData["is_delivery"] === "true",
+                    store_sku: rowData["store_sku"] || "",
+                    online_price: rowData["online_price"] || "",
+                    in_store_price: rowData["in_store_price"] || "",
+                    distributor_price: rowData["distributor_price"] || "",
+                    gross_margin: rowData["gross_margin"] || "",
+                    tax_percentage: rowData["tax_percentage"] || "",
+                    store: window.storeid || 1
+                };
+            }
         });
 
-        tableTarget.classList.remove('all_highlight');
-            target.classList.remove('highlight');
-            tableTarget.querySelectorAll('th, td').forEach(element => {
-                element.classList.remove('all_highlight');
-            });
+        return rows;
+    };
 
-        // Extract and structure the table data
-        let extractedData = transformData(tableTarget);
-        const tableId = tableTarget.id || "";
-        const tableClass = tableTarget.className || "";
-        let headers_get = Array.from(tableTarget.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
+    let tableTarget = target.closest('table');
+    if (!tableTarget) return;
 
-        // Save structured data to database
-        window.myData_scraper = extractedData;
-        saveDataToDatabse(window.userid, window.myData_scraper, location.href , type, tableId, tableClass, headers_get);
+    let headers_get = Array.from(tableTarget.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
+    let extractedData = transformData(tableTarget);
 
-        // Remove highlight after 5 seconds
-        // setTimeout(() => {
-            
-            window.click_tag = 'no';
-        // }, 5000);
-    }
+    const tableId = tableTarget.id || "";
+    const tableClass = tableTarget.className || "";
+
+    saveDataToDatabse(window.storeid, extractedData, location.href, type, tableId, tableClass, headers_get);
+
+    window.click_tag = 'no';
+}
+
 
     
     function removeButtonsAndBorder(target) {
@@ -1101,7 +1124,7 @@ function openTablePopup(target) {
             element.classList.add('all_highlight');
         });
         window.myData_scraper = transformData(tableTarget);
-        saveDataToDatabse(window.userid,window.myData_scraper,location.href);
+        saveDataToDatabse(window.storeid,window.myData_scraper,location.href);
         setTimeout(function(){
             tableTarget.classList.remove('all_highlight');
             target.classList.remove('highlight');
@@ -1135,7 +1158,7 @@ function openTablePopup(target) {
         });
         }
       });
-      saveDataToDatabse(window.userid,window.myData_scraper,location.href);
+      saveDataToDatabse(window.storeid,window.myData_scraper,location.href);
       setTimeout(function(){
             target.classList.remove('highlight');
         similarElements.forEach(element => {
