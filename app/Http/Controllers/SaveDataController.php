@@ -138,7 +138,7 @@ class SaveDataController extends Controller
     
     public function send_data(Request $request)
     {
-        try {
+        
             $data = DataScrapper::where('userid', $request->userid)
                                 ->where('url', $request->url)
                                 ->where('type', 'inventory')
@@ -183,10 +183,7 @@ class SaveDataController extends Controller
                 'failed_items' => $failed
             ], 200);
 
-        } catch (\Exception $e) {
-            Log::error('Send Data Error: ' . $e->getMessage());
-            return response()->json(['error' => 'Server error', 'details' => $e->getMessage()], 500);
-        }
+       
     }
 
 }
