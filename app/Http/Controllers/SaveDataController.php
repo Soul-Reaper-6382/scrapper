@@ -144,7 +144,6 @@ class SaveDataController extends Controller
                                 ->where('type', 'inventory')
                                 ->first();
 
-                return response()->json(['message' => $data], 200);
             if (!$data) {
                 return response()->json(['message' => 'No data found'], 200);
             }
@@ -154,6 +153,7 @@ class SaveDataController extends Controller
             $failed = [];
 
             foreach ($decodedData as $item) {
+                return response()->json(['message' => $decodedData], 200);
                 try {
                     $response = Http::withHeaders([
                         'Authorization' => 'Bearer ' . Session::get('access_token'),
