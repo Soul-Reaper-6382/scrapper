@@ -116,7 +116,6 @@ class SaveDataController extends Controller
     {
        $records = DataScrapper::where('userid', $request->userid)
                             ->where('url', $request->url)
-                            ->where('type', $request->type)
                             ->get();
 
     if ($records->isEmpty()) {
