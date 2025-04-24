@@ -144,6 +144,7 @@ class SaveDataController extends Controller
                                 ->where('type', 'inventory')
                                 ->first();
 
+                return response()->json(['message' => $data], 200);
             if (!$data) {
                 return response()->json(['message' => 'No data found'], 200);
             }
