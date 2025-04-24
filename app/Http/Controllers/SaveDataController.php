@@ -153,27 +153,27 @@ class SaveDataController extends Controller
             $failed = [];
 
             foreach ($decodedData as $item) {
-                try {
+                // try {
                     $response = Http::withHeaders([
                         'Authorization' => 'Bearer ' . Session::get('access_token'),
                         'Accept' => 'application/json',
                     ])->post(env('API_Smugglers_URL') . 'api/pos/smugglers/inventory/store-inventory/create/', $item);
 
-                    if ($response->successful()) {
-                        $success[] = $item;
-                    } else {
-                        $failed[] = [
-                            'item' => $item,
-                            'error' => $response->body(),
-                        ];
-                    }
-                } catch (\Exception $e) {
-                    $failed[] = [
-                        'item' => $item,
-                        'error' => $e->getMessage(),
-                    ];
-                    Log::error('Item POST failed: ' . $e->getMessage());
-                }
+                    // if ($response->successful()) {
+                    //     $success[] = $item;
+                    // } else {
+                    //     $failed[] = [
+                    //         'item' => $item,
+                    //         'error' => $response->body(),
+                    //     ];
+                    // }
+                // } catch (\Exception $e) {
+                //     $failed[] = [
+                //         'item' => $item,
+                //         'error' => $e->getMessage(),
+                //     ];
+                //     Log::error('Item POST failed: ' . $e->getMessage());
+                // }
             }
 
             return response()->json([
