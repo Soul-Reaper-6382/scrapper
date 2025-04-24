@@ -153,7 +153,6 @@ class SaveDataController extends Controller
             $failed = [];
 
             foreach ($decodedData as $item) {
-                return response()->json(['message' => $decodedData], 200);
                 try {
                     $response = Http::withHeaders([
                         'Authorization' => 'Bearer ' . Session::get('access_token'),
