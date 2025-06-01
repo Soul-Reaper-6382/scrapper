@@ -140,29 +140,36 @@ class SaveDataController extends Controller
 
     
    public function send_data(Request $request)
-    {
-        try {
-            // Process Inventory Data
-            $inventoryData = DataScrapper::where('userid', $request->userid)
-                                         ->where('url', $request->url)
-                                         ->where('type', 'inventory')
-                                         ->first();
+{
+    try {
+        // Fetch both inventory and order data
+        $inventoryData = DataScrapper::where('userid', $request->userid)
+                                     ->where('url', $request->url)
+                                     ->where('type', 'inventory')
+                                     ->first();
 
-            if (!$inventoryData) {
-                return response()->json(['message' => 'No inventory data found'], 200);
-            }
+        $orderData = DataScrapper::where('userid', $request->userid)
+                                 ->where('url', $request->url)
+                                 ->where('type', 'order')
+                                 ->first();
 
+        // If both are missing, return a message
+        if (!$inventoryData && !$orderData) {
+            return response()->json(['message' => 'No inventory or order data found'], 200);
+        }
+
+        // Initialize result arrays
+        $inventorySuccess = $inventoryFailed = [];
+        $orderSuccess = $orderFailed = [];
+
+        // ✅ Process inventory data if it exists
+        if ($inventoryData) {
             $decodedInventoryData = json_decode($inventoryData->data, true);
-            $inventorySuccess = [];
-            $inventoryFailed = [];
-
             foreach ($decodedInventoryData as $item) {
                 try {
-                    // Log the access token and request payload for debugging
                     Log::info('Access Token: ' . Session::get('access_token'));
                     Log::info('Inventory Request Payload: ' . json_encode($item));
 
-                    // Send inventory data to the API
                     $response = Http::withHeaders([
                         'Authorization' => 'Bearer ' . Session::get('access_token'),
                         'Accept' => 'application/json',
@@ -180,34 +187,21 @@ class SaveDataController extends Controller
                 } catch (\Exception $e) {
                     $inventoryFailed[] = [
                         'item' => $item,
-                        'token' => Session::get('access_token'),
                         'error' => $e->getMessage(),
                     ];
                     Log::error('Inventory Item POST failed: ' . $e->getMessage());
                 }
             }
+        }
 
-            // Process Order Data
-            $orderData = DataScrapper::where('userid', $request->userid)
-                                     ->where('url', $request->url)
-                                     ->where('type', 'order')
-                                     ->first();
-
-            if (!$orderData) {
-                return response()->json(['message' => 'No order data found'], 200);
-            }
-
+        // ✅ Process order data if it exists
+        if ($orderData) {
             $decodedOrderData = json_decode($orderData->data, true);
-            $orderSuccess = [];
-            $orderFailed = [];
-
             foreach ($decodedOrderData as $item) {
                 try {
-                    // Log the access token and request payload for debugging
                     Log::info('Access Token: ' . Session::get('access_token'));
                     Log::info('Order Request Payload: ' . json_encode($item));
 
-                    // Send order data to the API
                     $response = Http::withHeaders([
                         'Authorization' => 'Bearer ' . Session::get('access_token'),
                         'Accept' => 'application/json',
@@ -230,27 +224,29 @@ class SaveDataController extends Controller
                     Log::error('Order Item POST failed: ' . $e->getMessage());
                 }
             }
-
-            // Return combined result for both inventory and order data
-            return response()->json([
-                'message' => 'Data processed',
-                'inventory' => [
-                    'success_count' => count($inventorySuccess),
-                    'failed_count' => count($inventoryFailed),
-                    'failed_items' => $inventoryFailed,
-                ],
-                'orders' => [
-                    'success_count' => count($orderSuccess),
-                    'failed_count' => count($orderFailed),
-                    'failed_items' => $orderFailed,
-                ]
-            ], 200);
-
-        } catch (\Exception $e) {
-            Log::error('Send Data Error: ' . $e->getMessage());
-            return response()->json(['error' => 'Server error', 'details' => $e->getMessage()], 500);
         }
+
+        // ✅ Return final results
+        return response()->json([
+            'message' => 'Data processed',
+            'inventory' => [
+                'success_count' => count($inventorySuccess),
+                'failed_count' => count($inventoryFailed),
+                'failed_items' => $inventoryFailed,
+            ],
+            'orders' => [
+                'success_count' => count($orderSuccess),
+                'failed_count' => count($orderFailed),
+                'failed_items' => $orderFailed,
+            ]
+        ], 200);
+
+    } catch (\Exception $e) {
+        Log::error('Send Data Error: ' . $e->getMessage());
+        return response()->json(['error' => 'Server error', 'details' => $e->getMessage()], 500);
     }
+}
+
 
 
 
