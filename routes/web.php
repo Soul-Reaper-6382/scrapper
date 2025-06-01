@@ -6,7 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterStoreController;
 use App\Http\Controllers\ScraperController;
-
+use App\Http\Controllers\SaveDataController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -27,3 +27,8 @@ Route::get('/home', [HomeController::class,'index'])->name('home');
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login.form');
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/logout', [LoginController::class,'logout'])->name('logout');
+
+Route::post('/save-data', [SaveDataController::class, 'store']);
+Route::post('/retrieve-data', [SaveDataController::class, 'retrieve']);
+Route::post('/retrieve-alldata', [SaveDataController::class, 'retrieve_alldata']);
+Route::post('/send-data', [SaveDataController::class, 'send_data']);

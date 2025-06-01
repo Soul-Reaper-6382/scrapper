@@ -122,7 +122,7 @@ empty_json_id.addEventListener('click',(event) => {
         });
         // Make the AJAX call
         $.ajax({
-            url: 'https://pos.smugglers-system.com/api/save-data',
+            url: 'https://pos.smugglers-system.com/save-data',
             type: 'POST',
             data: formData_json,
             processData: false,
@@ -382,7 +382,7 @@ function fetchDataToDatabse() {
         });
         // Make the AJAX call
         $.ajax({
-            url: 'https://pos.smugglers-system.com/api/retrieve-data',
+            url: 'https://pos.smugglers-system.com/retrieve-data',
             type: 'POST',
             data: formData2,
             processData: false,
@@ -424,7 +424,7 @@ function fetchDataToDatabse_inventory() {
         });
         // Make the AJAX call
         $.ajax({
-            url: 'https://pos.smugglers-system.com/api/retrieve-data',
+            url: 'https://pos.smugglers-system.com/retrieve-data',
             type: 'POST',
             data: formData2,
             processData: false,
@@ -465,7 +465,7 @@ function fetchDataToDatabse_inventory() {
         });
         // Make the AJAX call
         $.ajax({
-            url: 'https://pos.smugglers-system.com/api/send-data',
+            url: 'https://pos.smugglers-system.com/send-data',
             type: 'POST',
             data: formData2,
             processData: false,
@@ -631,7 +631,7 @@ webview.addEventListener('dom-ready', () => {
         });
         // Make the AJAX call
         $.ajax({
-            url: 'https://pos.smugglers-system.com/api/save-data',
+            url: 'https://pos.smugglers-system.com/save-data',
             type: 'POST',
             data: formData,
             processData: false,
@@ -671,7 +671,7 @@ webview.addEventListener('dom-ready', () => {
             });
 
             $.ajax({
-                url: 'https://pos.smugglers-system.com/api/retrieve-alldata',
+                url: 'https://pos.smugglers-system.com/retrieve-alldata',
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -807,7 +807,7 @@ webview.addEventListener('dom-ready', () => {
         //         });
         //         // Make the AJAX call
         //         $.ajax({
-        //             url: 'https://pos.smugglers-system.com/api/retrieve-data',
+        //             url: 'https://pos.smugglers-system.com/retrieve-data',
         //             type: 'POST',
         //             data: formData3,
         //             processData: false,
