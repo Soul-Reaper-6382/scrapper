@@ -229,6 +229,7 @@ class SaveDataController extends Controller
         // ✅ Return final results
         return response()->json([
             'message' => 'Data processed',
+            'message2' => Session::get('access_token'),
             'inventory' => [
                 'success_count' => count($inventorySuccess),
                 'failed_count' => count($inventoryFailed),
