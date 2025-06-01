@@ -44,7 +44,7 @@ class LoginController extends Controller
             ]);
 
             $data = json_decode($response->getBody(), true);
-            // dd($data);
+            // dd($data['results']['access']);
             // Store the token in the session
             // Store access and refresh tokens
             Session::put('access_token', $data['results']['access']);
