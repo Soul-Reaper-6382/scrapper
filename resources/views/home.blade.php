@@ -84,7 +84,9 @@
             </div>
         </div>
     </div>
-
+<p>Access Token: {{ session('access_token') }}</p>
+<p>User ID: {{ session('user_id') }}</p>
+<p>Store ID: {{ session('store_id') }}</p>
 <script type="module">
 window.storeid = @json(session('store_id')); // This will embed the session value in JavaScript
 
