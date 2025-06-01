@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(function(){
             fetchDataToDatabse();
             fetchDataToDatabse_inventory();
-        },2000)
+        },10000)
           const checkbox = document.getElementById('personalize');
             checkbox.addEventListener('change', handleCheckboxChange);
             
@@ -481,14 +481,15 @@ function fetchDataToDatabse_inventory() {
         });
         }
 
-setInterval(function(){
-fetchDataToDatabse()
-fetchDataToDatabse_inventory()
-},5000)
+// Only define these once
+const fetchInterval = setInterval(() => {
+  fetchDataToDatabse();
+  fetchDataToDatabse_inventory();
+}, 20000);
 
-setInterval(function(){
-saveDataToAPI()
-},15000)
+const saveInterval = setInterval(() => {
+  saveDataToAPI();
+}, 30000);
 
 function addWebviewEventListener() {
 webview.addEventListener('dom-ready', () => {

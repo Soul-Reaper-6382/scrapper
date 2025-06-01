@@ -180,6 +180,7 @@ class SaveDataController extends Controller
                 } catch (\Exception $e) {
                     $inventoryFailed[] = [
                         'item' => $item,
+                        'token' => Session::get('access_token'),
                         'error' => $e->getMessage(),
                     ];
                     Log::error('Inventory Item POST failed: ' . $e->getMessage());
