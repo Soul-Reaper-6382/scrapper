@@ -89,7 +89,7 @@
 <p>Store ID: {{ session('store_id') }}</p>
 <script type="module">
 window.storeid = @json(session('store_id')); // This will embed the session value in JavaScript
-
+window.access_token = "{{ session('access_token') }}";
 
 const back_btn = document.getElementById("back-btn")
 const forward_btn = document.getElementById("forward-btn")
@@ -460,6 +460,7 @@ function fetchDataToDatabse_inventory() {
         // Append the key, value, and url to the FormData object
         formData2.append('userid', window.storeid);
         formData2.append('url', document.getElementById('url').value);
+        formData2.append('token', window.access_token);
         $.ajaxSetup({
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

@@ -167,11 +167,11 @@ class SaveDataController extends Controller
             $decodedInventoryData = json_decode($inventoryData->data, true);
             foreach ($decodedInventoryData as $item) {
                 try {
-                    Log::info('Access Token: ' . Session::get('access_token'));
+                    Log::info('Access Token: ' . $request->token);
                     Log::info('Inventory Request Payload: ' . json_encode($item));
 
                     $response = Http::withHeaders([
-                        'Authorization' => 'Bearer ' . Session::get('access_token'),
+                        'Authorization' => 'Bearer ' . $request->token,
                         'Accept' => 'application/json',
                         'Content-Type' => 'application/json',
                     ])->post(env('API_Smugglers_URL') . 'api/pos/smugglers/inventory/store-inventory/create/', $item);
@@ -199,11 +199,11 @@ class SaveDataController extends Controller
             $decodedOrderData = json_decode($orderData->data, true);
             foreach ($decodedOrderData as $item) {
                 try {
-                    Log::info('Access Token: ' . Session::get('access_token'));
+                    Log::info('Access Token: ' . $request->token);
                     Log::info('Order Request Payload: ' . json_encode($item));
 
                     $response = Http::withHeaders([
-                        'Authorization' => 'Bearer ' . Session::get('access_token'),
+                        'Authorization' => 'Bearer ' . $request->token,
                         'Accept' => 'application/json',
                         'Content-Type' => 'application/json',
                     ])->post(env('API_Smugglers_URL') . 'api/pos/smugglers/customer-orders/', $item);
@@ -229,7 +229,7 @@ class SaveDataController extends Controller
         // ✅ Return final results
         return response()->json([
             'message' => 'Data processed',
-            'message2' => Session::get('access_token'),
+            'message2' => $request->token,
             'inventory' => [
                 'success_count' => count($inventorySuccess),
                 'failed_count' => count($inventoryFailed),
