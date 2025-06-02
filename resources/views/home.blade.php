@@ -935,22 +935,18 @@ function openTablePopup(target) {
 }
 
 
-    function removeButtonsAndBorder_yes(target, type) {
+    async function removeButtonsAndBorder_yes(target, type) {
     target.classList.remove('highlight');
 
     const tagNameSpan = target.querySelector('.tag-name');
-    if (tagNameSpan) {
-        tagNameSpan.remove();
-    }
+    if (tagNameSpan) tagNameSpan.remove();
 
     let popup = document.getElementById('tablePopup');
-    if (popup) {
-        popup.remove();
-    }
+    if (popup) popup.remove();
 
     const columnMapping = type === 'order'
         ? {
-            "sku": ["Store SKU", "sku", "sku_name", "skuname", "product_code"],
+            "sku": ["store sku", "sku", "sku_name", "skuname", "product_code"],
             "quantity": ["quantity", "qty"],
             "name": ["customer", "buyer", "client_name"],
             "customer_email": ["email", "customer email", "email_address"],
@@ -973,7 +969,6 @@ function openTablePopup(target) {
             "tax_percentage": ["tax percentage", "tax_percentage", "tax_rate", "vat"]
         };
 
-    // Helper to format date to ISO
     function formatDate(dateString) {
         let date = new Date(dateString);
         return isNaN(date.getTime()) ? "" : date.toISOString();
@@ -1036,19 +1031,44 @@ function openTablePopup(target) {
         return rows;
     };
 
-    let tableTarget = target.closest('table');
+    const tableTarget = target.closest('table');
     if (!tableTarget) return;
 
-    let headers_get = Array.from(tableTarget.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
-    let extractedData = transformData(tableTarget);
+    async function scrapeAndPaginateTargetTable(table) {
+        let page = 1;
 
-    const tableId = tableTarget.id || "";
-    const tableClass = tableTarget.className || "";
+        while (true) {
+            const headers_get = Array.from(table.querySelectorAll('th')).map(th => th.innerText.trim().toLowerCase());
+            const extractedData = transformData(table);
+            const tableId = table.id || "";
+            const tableClass = table.className || "";
 
-    saveDataToDatabse(window.storeid, extractedData, location.href, type, tableId, tableClass, headers_get);
+            await saveDataToDatabse(window.storeid, extractedData, location.href, type, tableId, tableClass, headers_get);
+            console.log(`✅`);
+
+            const nextButton = document.querySelector('a.next, button.next, li.next a');
+            if (!nextButton || nextButton.classList.contains('disabled')) {
+                console.log("⛔ No more pages or next button is disabled.");
+                break;
+            }
+
+            nextButton.click();
+            page++;
+
+            await new Promise(resolve => setTimeout(resolve, 5000)); // wait for next page to load
+
+            // re-select the table in case the DOM changes on pagination
+            const newTable = target.closest('table');
+            if (!newTable) break;
+            table = newTable;
+        }
+    }
+
+    await scrapeAndPaginateTargetTable(tableTarget);
 
     window.click_tag = 'no';
 }
+
 
 
     
