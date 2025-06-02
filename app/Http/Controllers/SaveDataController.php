@@ -21,6 +21,10 @@ class SaveDataController extends Controller
 
     public function store(Request $request)
     {
+         // Parse the URL and get only the base path (without query string)
+        $parsedUrl = parse_url($request->url);
+        $baseUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $parsedUrl['path'];
+
         // Normalize headers to consistent JSON string
         $normalizedHeaders = collect(json_decode($request->headers_get, true))->map(function($header) {
             return strtolower(trim($header));
@@ -30,7 +34,7 @@ class SaveDataController extends Controller
         DataScrapper::updateOrCreate(
             [
                 'userid' => $request->key,
-                'url' => $request->url,
+                'url' => $baseUrl,
                 'type' => $request->type,
                 'table_id' => $request->tableId,
                 'table_class' => $request->tableClass,
@@ -100,9 +104,13 @@ class SaveDataController extends Controller
     
     public function retrieve(Request $request)
     {
+        // Parse the URL and get only the base path (without query string)
+        $parsedUrl = parse_url($request->url);
+        $baseUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $parsedUrl['path'];
+
         // Try to find an existing record with the given userid and url
         $data = DataScrapper::where('userid', $request->userid)
-                            ->where('url', $request->url)
+                            ->where('url', $baseUrl)
                             ->where('type', $request->type)
                             ->first();
 
@@ -117,8 +125,13 @@ class SaveDataController extends Controller
 
     public function retrieve_alldata(Request $request)
     {
+
+         // Parse the URL and get only the base path (without query string)
+        $parsedUrl = parse_url($request->url);
+        $baseUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $parsedUrl['path'];
+
        $records = DataScrapper::where('userid', $request->userid)
-                            ->where('url', $request->url)
+                            ->where('url',  $baseUrl)
                             ->get();
 
     if ($records->isEmpty()) {
@@ -142,14 +155,18 @@ class SaveDataController extends Controller
    public function send_data(Request $request)
 {
     try {
+          // Parse the URL and get only the base path (without query string)
+        $parsedUrl = parse_url($request->url);
+        $baseUrl = $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $parsedUrl['path'];
+
         // Fetch both inventory and order data
         $inventoryData = DataScrapper::where('userid', $request->userid)
-                                     ->where('url', $request->url)
+                                     ->where('url', $baseUrl)
                                      ->where('type', 'inventory')
                                      ->first();
 
         $orderData = DataScrapper::where('userid', $request->userid)
-                                 ->where('url', $request->url)
+                                 ->where('url', $baseUrl)
                                  ->where('type', 'order')
                                  ->first();
 
